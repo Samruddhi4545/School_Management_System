@@ -80,9 +80,13 @@ public class main {
         String name = scanner.nextLine();
         System.out.print("Enter Grade Level: ");
         String grade = scanner.nextLine();
+        System.out.print("Enter number of Subjects: ");
+        String Subjects = scanner.nextLine();
+        System.out.print("Enter Total Scores: ");
+        Integer Total_Scores = scanner.nextInt();
 
         // Create a new student object (lowercase constructor)
-        student newStudent = new student(id, name, grade);
+        student newStudent = new student(id, name, grade, Subjects,Total_Scores);
         system.addStudent(newStudent);
     }
 

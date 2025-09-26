@@ -13,6 +13,8 @@ public class student implements Serializable {
     private String studentId;
     private String name;
     private String gradeLevel;
+    private String Subjects;
+    private Integer Total_Scores;
 
     // Grades: Key = Subject Name (e.g., "Math"), Value = List of scores (e.g., [95, 88])
     private Map<String, List<Integer>> grades;
@@ -21,10 +23,12 @@ public class student implements Serializable {
     private Map<LocalDate, String> attendanceRecords;
 
     // --- CONSTRUCTOR ---
-    public student(String studentId, String name, String gradeLevel) {
+    public student(String studentId, String name, String gradeLevel,String Subjects,Integer Total_Scores) {
         this.studentId = studentId;
         this.name = name;
         this.gradeLevel = gradeLevel;
+        this.Subjects = Subjects;
+        this.Total_Scores = Total_Scores;
         this.grades = new HashMap<>();
         this.attendanceRecords = new HashMap<>();
     }

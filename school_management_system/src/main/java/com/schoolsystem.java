@@ -17,8 +17,8 @@ public class schoolsystem {
     public schoolsystem() {
         this.students = new ArrayList<>();
         // Using lowercase constructor and type for student
-        addStudent(new student("1001", "Alice Johnson", "10"));
-        addStudent(new student("1002", "Bob Smith", "11"));
+        addStudent(new student("1001", "Alice Johnson", "10","5",98));
+        addStudent(new student("1002", "Bob Smith", "11","5",99));
         
         // Using lowercase type and method for student
         student alice = findStudentById("1001");
