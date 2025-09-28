@@ -1,11 +1,11 @@
 
 package com;
 
-import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class main {
 
@@ -44,14 +44,14 @@ public class main {
                         viewAllStudents(system);
                         break;
                     case 6:
-                        System.out.println("👋 Exiting System. Goodbye!");
+                        System.out.println("Exiting System. Goodbye!");
                         running = false;
                         break;
                     default:
-                        System.out.println("⚠️ Invalid choice. Please select a number from the menu.");
+                        System.out.println("Invalid choice. Please select a number from the menu.");
                 }
             } else {
-                System.out.println("⚠️ Invalid input. Please enter a number.");
+                System.out.println("Invalid input. Please enter a number.");
                 scanner.nextLine(); // Consume the invalid input
             }
             System.out.println("---------------------------------------------");
