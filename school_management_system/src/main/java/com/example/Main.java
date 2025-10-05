@@ -1,10 +1,10 @@
 package com.example;
 
-import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
 
@@ -13,7 +13,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         // Initialize the core system manager
         SchoolSystem system = new SchoolSystem();
-        
         System.out.println("=============================================");
         System.out.println("  SCHOOL MANAGEMENT SYSTEM (CLI Version)");
         System.out.println("=============================================");
@@ -73,7 +72,7 @@ public class Main {
     // --- MENU HANDLERS ---
 
     private static void addStudent(SchoolSystem system, Scanner scanner) {
-        System.out.print("Enter Student ID: ");
+        System.out.print("Enter Student id:");
         String id = scanner.nextLine();
         System.out.print("Enter Student Name: ");
         String name = scanner.nextLine();
