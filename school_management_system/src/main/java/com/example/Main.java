@@ -5,14 +5,30 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+// 1. ADD THIS IMPORT for the DatabaseManager class
+import com.example.DatabaseManager; 
 
 public class Main {
 
     public static void main(String[] args) {
         // Initialize the Scanner for user input
         Scanner scanner = new Scanner(System.in);
+        
+        // -------------------------------------------------------------------
+        // --- NEW CODE START: DATABASE INITIALIZATION ---
+        // -------------------------------------------------------------------
+        
+        // 2. CALL THE INITIALIZER: This ensures the school.db file and tables exist.
+        DatabaseManager.initializeDatabase(); 
+        
+        // -------------------------------------------------------------------
+        // --- NEW CODE END ---
+        // -------------------------------------------------------------------
+        
         // Initialize the core system manager
+        // This is now safe, as the SchoolSystem will rely on the initialized DB
         SchoolSystem system = new SchoolSystem();
+        
         System.out.println("=============================================");
         System.out.println("  SCHOOL MANAGEMENT SYSTEM (CLI Version)");
         System.out.println("=============================================");
@@ -42,7 +58,7 @@ public class Main {
                         viewAllStudents(system);
                         break;
                     case 6:
-                        System.out.println(" Exiting System.\n");
+                        System.out.println(" Exiting System. Data saved in school.db.");
                         running = false;
                         break;
                     default:
@@ -69,7 +85,7 @@ public class Main {
         System.out.print("Enter choice: ");
     }
 
-    // --- MENU HANDLERS ---
+    // --- MENU HANDLERS (No changes needed here as they call methods in SchoolSystem) ---
 
     private static void addStudent(SchoolSystem system, Scanner scanner) {
         System.out.print("Enter Student id:");
@@ -81,6 +97,7 @@ public class Main {
 
         // Create a new Student object
         Student newStudent = new Student(id, name, grade);
+        // system.addStudent now saves to the database
         system.addStudent(newStudent);
     }
 
@@ -94,6 +111,7 @@ public class Main {
         if (scanner.hasNextInt()) {
             int score = scanner.nextInt();
             scanner.nextLine();
+            // system.recordGrade now saves to the database
             system.recordGrade(id, subject, score);
         } else {
             System.out.println(" Invalid score entered.");
@@ -111,6 +129,7 @@ public class Main {
 
         try {
             LocalDate date = LocalDate.parse(dateStr);
+            // system.recordAttendance now saves to the database
             system.recordAttendance(id, date, status);
         } catch (DateTimeParseException e) {
             System.out.println(" Invalid date format. Please use YYYY-MM-DD.");
@@ -120,7 +139,7 @@ public class Main {
     private static void viewStudentDetails(SchoolSystem system, Scanner scanner) {
         System.out.print("Enter Student ID to view details: ");
         String id = scanner.nextLine();
-        // Correctly referencing the Student class
+        // system.findStudentById now loads data from the database
         Student foundStudent = system.findStudentById(id);
 
         if (foundStudent != null) {
@@ -149,6 +168,7 @@ public class Main {
     }
     
     private static void viewAllStudents(SchoolSystem system) {
+        // system.getAllStudents now loads data from the database
         List<Student> allStudents = system.getAllStudents();
         if (allStudents.isEmpty()) {
             System.out.println("No students registered in the system yet.");
