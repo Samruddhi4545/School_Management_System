@@ -27,7 +27,35 @@ public class Student {
     // Value: Status (e.g., "Present", "Absent", "Late")
     private Map<LocalDate, String> attendanceRecords;
 
-    // --- Constructor ---
+    // =======================================================
+    // --- NEW CODE START: REQUIRED FOR DATABASE LOADING ---
+    // =======================================================
+
+    /**
+     * Required default (no-argument) constructor for database loading (JDBC).
+     * It allows the system to create an empty object and populate it using setters.
+     */
+    public Student() {
+        // Initialize the collections, as the setters won't do it.
+        this.grades = new HashMap<>();
+        this.attendanceRecords = new HashMap<>();
+    }
+    
+    // --- New Setters for main fields (Required for Database Loading) ---
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    // =======================================================
+    // --- NEW CODE END ---
+    // =======================================================
+
+    // --- Existing Constructor (Used when adding a student via CLI menu) ---
     public Student(String studentId, String name, String gradeLevel) {
         this.studentId = studentId;
         this.name = name;
@@ -52,7 +80,7 @@ public class Student {
         return gradeLevel;
     }
 
-    // Setter is usually needed if student details can be updated
+    // Existing Setter
     public void setGradeLevel(String gradeLevel) {
         this.gradeLevel = gradeLevel;
     }
@@ -89,7 +117,7 @@ public class Student {
      */
     @Override
     public String toString() {
-        return String.format("  Student ID: %s, Name: %s, Grade: %s, Grades Count: %d, Attendance Count: %d",studentId, name, gradeLevel, getGradeCount(), attendanceRecords.size());
+        return String.format("  Student ID: %s, Name: %s, Grade: %s, Grades Count: %d, Attendance Count: %d",studentId, name, gradeLevel, getGradeCount(), attendanceRecords.size());
     }
     
     // Helper method for toString
