@@ -42,14 +42,14 @@ public class Main {
                         viewAllStudents(system);
                         break;
                     case 6:
-                        System.out.println("👋 Exiting System. Goodbye!");
+                        System.out.println(" Exiting System.\n");
                         running = false;
                         break;
                     default:
-                        System.out.println("⚠️ Invalid choice. Please select a number from the menu.");
+                        System.out.println(" Invalid choice. Please select a number from the menu.");
                 }
             } else {
-                System.out.println("⚠️ Invalid input. Please enter a number.");
+                System.out.println(" Invalid input. Please enter a number.");
                 scanner.nextLine(); // Consume the invalid input
             }
             System.out.println("---------------------------------------------");
@@ -96,7 +96,7 @@ public class Main {
             scanner.nextLine();
             system.recordGrade(id, subject, score);
         } else {
-            System.out.println("❌ Invalid score entered.");
+            System.out.println(" Invalid score entered.");
             scanner.nextLine();
         }
     }
@@ -113,7 +113,7 @@ public class Main {
             LocalDate date = LocalDate.parse(dateStr);
             system.recordAttendance(id, date, status);
         } catch (DateTimeParseException e) {
-            System.out.println("❌ Invalid date format. Please use YYYY-MM-DD.");
+            System.out.println(" Invalid date format. Please use YYYY-MM-DD.");
         }
     }
 
@@ -144,7 +144,7 @@ public class Main {
             }
             
         } else {
-            System.out.println("❌ Student not found with ID: " + id);
+            System.out.println(" Student not found with ID: " + id);
         }
     }
     
