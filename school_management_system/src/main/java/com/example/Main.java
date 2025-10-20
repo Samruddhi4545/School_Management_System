@@ -17,7 +17,7 @@ public class Main {
         // -------------------------------------------------------------------
         
         // 2. CALL THE INITIALIZER: This ensures the school.db file and tables exist.
-        DatabaseManager.initializeDatabase(); 
+        DatabaseManager.initializeDatabase();
         
         // -------------------------------------------------------------------
         // --- NEW CODE END ---

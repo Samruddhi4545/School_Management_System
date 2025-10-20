@@ -24,24 +24,24 @@ public class SchoolSystem {
 
     public void addStudent(Student newStudent) {
         if (findStudentById(newStudent.getStudentId()) != null) {
-            System.out.println("❌ Error: Student with ID " + newStudent.getStudentId() + " already exists.");
+            System.out.println(" Error: Student with ID " + newStudent.getStudentId() + " already exists.");
             return;
         }
 
         String sql = "INSERT INTO students(id, name, grade_level) VALUES(?, ?, ?)";
         
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newStudent.getStudentId());
             pstmt.setString(2, newStudent.getName());
             pstmt.setString(3, newStudent.getGradeLevel());
             pstmt.executeUpdate();
             
-            System.out.println("✅ Student saved to DB: " + newStudent.getName());
+            System.out.println("Student saved to DB: " + newStudent.getName());
 
         } catch (SQLException e) {
-            System.err.println("❌ Error saving student to database: " + e.getMessage());
+            System.err.println("Error saving student to database: " + e.getMessage());
         }
     }
 
@@ -55,7 +55,7 @@ public class SchoolSystem {
         Student s = null;
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sqlStudent)) {
+            PreparedStatement pstmt = conn.prepareStatement(sqlStudent)) {
 
             pstmt.setString(1, studentId);
             ResultSet rs = pstmt.executeQuery();
@@ -72,7 +72,7 @@ public class SchoolSystem {
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error finding student: " + e.getMessage());
+            System.err.println("Error finding student: " + e.getMessage());
         }
         return s;
     }
@@ -86,8 +86,8 @@ public class SchoolSystem {
         String sql = "SELECT id, name, grade_level FROM students";
         
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 // 1. Load basic info
@@ -97,14 +97,14 @@ public class SchoolSystem {
                 s.setGradeLevel(rs.getString("grade_level"));
                 
                 // 2. LOAD ALL RELATED RECORDS (FIX for summary count bug)
-                loadStudentGrades(conn, s);       
-                loadStudentAttendance(conn, s);   
+                loadStudentGrades(conn, s);
+                loadStudentAttendance(conn, s);
                 
                 studentList.add(s);
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error getting all students: " + e.getMessage());
+            System.err.println("Error getting all students: " + e.getMessage());
         }
         return studentList;
     }
@@ -112,29 +112,29 @@ public class SchoolSystem {
     // --- Grade Management (CREATE/UPDATE) ---
 
     public void recordGrade(String studentId, String subject, int score) {
-        if (findStudentById(studentId) == null) { 
-            System.out.println("❌ Error: Student not found with ID: " + studentId);
+        if (findStudentById(studentId) == null) {
+            System.out.println("Error: Student not found with ID: " + studentId);
             return;
         }
         
         if (score < 0 || score > 100) {
-            System.out.println("❌ Error: Score must be between 0 and 100.");
+            System.out.println(" Error: Score must be between 0 and 100.");
             return;
         }
 
         String sql = "INSERT INTO grades(student_id, subject, score) VALUES(?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, studentId);
             pstmt.setString(2, subject);
             pstmt.setInt(3, score);
             pstmt.executeUpdate();
 
-            System.out.println("✅ Grade recorded in DB: " + subject + " (" + score + "%) for ID " + studentId);
+            System.out.println("Grade recorded in DB: " + subject + " (" + score + "%) for ID " + studentId);
 
         } catch (SQLException e) {
-            System.err.println("❌ Error recording grade: " + e.getMessage());
+            System.err.println("Error recording grade: " + e.getMessage());
         }
     }
     
@@ -142,31 +142,31 @@ public class SchoolSystem {
     
     public void recordAttendance(String studentId, LocalDate date, String status) {
         if (findStudentById(studentId) == null) {
-            System.out.println("❌ Error: Student not found with ID: " + studentId);
+            System.out.println(" Error: Student not found with ID: " + studentId);
             return;
         }
 
         String finalStatus = status.trim().toUpperCase();
         if (!finalStatus.equals("PRESENT") && !finalStatus.equals("ABSENT") && !finalStatus.equals("LATE")) 
         {
-            System.out.println("❌ Error: Invalid status. Use 'Present', 'Absent', or 'Late'.");
+            System.out.println("Error: Invalid status. Use 'Present', 'Absent', or 'Late'.");
             return;
         }
         
         // INSERT OR REPLACE updates the status if the student/date combination already exists
         String sql = "INSERT OR REPLACE INTO attendance(student_id, date, status) VALUES(?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, studentId);
             pstmt.setString(2, date.toString());
             pstmt.setString(3, finalStatus);
             pstmt.executeUpdate();
 
-            System.out.println("✅ Attendance recorded in DB for ID " + studentId + " on " + date + ": " + finalStatus);
+            System.out.println(" Attendance recorded in DB for ID " + studentId + " on " + date + ": " + finalStatus);
 
         } catch (SQLException e) {
-            System.err.println("❌ Error recording attendance: " + e.getMessage());
+            System.err.println(" Error recording attendance: " + e.getMessage());
         }
     }
     
