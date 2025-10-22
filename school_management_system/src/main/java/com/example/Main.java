@@ -21,7 +21,7 @@ public class Main extends Application { // ⬅️ CRITICAL CHANGE: Extend Applic
             
             // 2. Load the FXML file for the main application layout (The Dashboard)
             // ⬇️ NOTE: Path is corrected based on your screenshot structure ⬇️
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml")); 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
             Parent root = loader.load();
 
             // 3. Set up the primary stage (the main window)
@@ -42,7 +42,7 @@ public class Main extends Application { // ⬅️ CRITICAL CHANGE: Extend Applic
         // ⬅️ CRITICAL CHANGE: Calls the JavaFX launcher method
         launch(args);
         
-        // The old CLI code (printMenu, scanner logic, etc.) is removed 
+        // The old CLI code (printMenu, scanner logic, etc.) is removed
         // because the GUI now handles all user interaction.
     }
 }
