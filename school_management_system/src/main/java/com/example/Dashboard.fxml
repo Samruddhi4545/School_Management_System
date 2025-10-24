@@ -4,9 +4,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/21" 
+<VBox alignment="CENTER" spacing="20.0"
+    xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="com.DashboardController"
+    fx:controller="com.example.DashboardController"
     prefHeight="600.0" prefWidth="800.0">
 
     <Label text="School Management Dashboard">
@@ -23,6 +24,7 @@
         <Button text="3. Track Attendance" onAction="#handleTrackAttendance" prefWidth="150" />
     </HBox>
     
-    <Label fx:id="statusLabel" text="Ready to start." style="-fx-font-style: italic;" />
+    <Label fx:id="statusLabel" text="Ready to start."
+        style="-fx-font-style: italic;" />
     
 </VBox>
