@@ -6,84 +6,95 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * The Model/Entity class for a Student.
- * Manages personal information, grades, and attendance records.
+ * MODIFIED to use JavaFX Properties for UI binding.
  */
 public class Student {
 
-    // --- Student Personal Information ---
-    private String studentId;
-    private String name;
-    private String gradeLevel;
+    // --- JavaFX Properties (Required for TableView binding) ---
+    private final StringProperty studentId = new SimpleStringProperty();
+    private final StringProperty name = new SimpleStringProperty();
+    private final StringProperty gradeLevel = new SimpleStringProperty();
 
-    // --- Academic Records (Grades) ---
-    // Key: Subject Name (e.g., "Math")
-    // Value: List of scores for that subject
+    // --- Academic Records (Collections remain the same) ---
     private Map<String, List<Integer>> grades;
-
-    // --- Attendance Records ---
-    // Key: Date of attendance
-    // Value: Status (e.g., "Present", "Absent", "Late")
     private Map<LocalDate, String> attendanceRecords;
 
     // =======================================================
-    // --- NEW CODE START: REQUIRED FOR DATABASE LOADING ---
+    // --- CONSTRUCTORS ---
     // =======================================================
 
     /**
-     * Required default (no-argument) constructor for database loading (JDBC).
-     * It allows the system to create an empty object and populate it using setters.
+     * Required default (no-argument) constructor for database loading (JDBC)
+     * AND for creating empty objects to be populated via properties.
      */
     public Student() {
-        // Initialize the collections, as the setters won't do it.
         this.grades = new HashMap<>();
         this.attendanceRecords = new HashMap<>();
     }
-    
-    // --- New Setters for main fields (Required for Database Loading) ---
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // =======================================================
-    // --- NEW CODE END ---
-    // =======================================================
-
-    // --- Existing Constructor (Used when adding a student via CLI menu) ---
+    /**
+     * Standard constructor (Used when adding a student).
+     */
     public Student(String studentId, String name, String gradeLevel) {
-        this.studentId = studentId;
-        this.name = name;
-        this.gradeLevel = gradeLevel;
-        // Initialize the collections
-        this.grades = new HashMap<>();
-        this.attendanceRecords = new HashMap<>();
-        System.out.println("✅ Student added: " + name + " (ID: " + studentId + ")");
+        this(); // Call default constructor to initialize maps
+        // Set the property values
+        setStudentId(studentId);
+        setName(name);
+        setGradeLevel(gradeLevel);
     }
 
-    // --- Getters and Setters (Encapsulation) ---
+    // =======================================================
+    // --- GETTERS, SETTERS, and PROPERTY METHODS (CRITICAL FOR JAVAFX) ---
+    // =======================================================
 
-    public String getStudentId() {
+    // --- 1. Property Methods (New) ---
+    // The TableView columns must use these property methods to bind data.
+
+    public StringProperty studentIdProperty() {
         return studentId;
     }
 
-    public String getName() {
+    public StringProperty nameProperty() {
         return name;
     }
 
-    public String getGradeLevel() {
+    public StringProperty gradeLevelProperty() {
         return gradeLevel;
     }
 
-    // Existing Setter
-    public void setGradeLevel(String gradeLevel) {
-        this.gradeLevel = gradeLevel;
+    // --- 2. Standard Getters/Setters (Modified to use properties) ---
+    // These methods are needed for JDBC/SchoolSystem interaction.
+
+    public String getStudentId() {
+        return studentId.get();
     }
+
+    public void setStudentId(String studentId) {
+        this.studentId.set(studentId);
+    }
+
+    public String getName() {
+        return name.get();
+    }
+
+    public void setName(String name) {
+        this.name.set(name);
+    }
+
+    public String getGradeLevel() {
+        return gradeLevel.get();
+    }
+
+    public void setGradeLevel(String gradeLevel) {
+        this.gradeLevel.set(gradeLevel);
+    }
+
+    // --- 3. Collection Getters (Unchanged) ---
 
     public Map<String, List<Integer>> getGrades() {
         return grades;
@@ -93,34 +104,26 @@ public class Student {
         return attendanceRecords;
     }
 
-    // --- Core Methods for Records ---
+    // =======================================================
+    // --- CORE METHODS (Unchanged) ---
+    // =======================================================
 
-    /**
-     * Adds a score to a specific subject's grade list.
-     */
     public void addGrade(String subject, int score) {
-        // Ensure the subject key exists in the map
         this.grades.computeIfAbsent(subject, k -> new ArrayList<>()).add(score);
     }
 
-    /**
-     * Records attendance status for a specific date.
-     */
     public void recordAttendance(LocalDate date, String status) {
         this.attendanceRecords.put(date, status);
     }
 
-    // --- Utility Method ---
+    // --- Utility Method (Unchanged) ---
 
-    /**
-     * Override toString for a clean summary output in the CLI.
-     */
     @Override
     public String toString() {
-        return String.format("  Student ID: %s, Name: %s, Grade: %s, Grades Count: %d, Attendance Count: %d",studentId, name, gradeLevel, getGradeCount(), attendanceRecords.size());
+        return String.format("  Student ID: %s, Name: %s, Grade: %s, Grades Count: %d, Attendance Count: %d",
+                getStudentId(), getName(), getGradeLevel(), getGradeCount(), attendanceRecords.size());
     }
-    
-    // Helper method for toString
+
     private int getGradeCount() {
         return grades.values().stream().mapToInt(List::size).sum();
     }
