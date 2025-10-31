@@ -47,9 +47,20 @@ public class DashboardController {
 
     @FXML
     private void handleRecordGrades(ActionEvent event) {
-        // TODO: Logic for opening the Grade Recording view will go here
         statusLabel.setText("Opening Grade Recording...");
-        System.out.println("Record Grades button clicked.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/GradeManagement.fxml"));
+            Parent root = loader.load();
+
+            // Assuming the button to get the scene is the same as for manage students
+            Stage stage = (Stage) manageStudentsButton.getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("Grade Management");
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error: Could not load grade management view.");
+        }
     }
 
     @FXML
