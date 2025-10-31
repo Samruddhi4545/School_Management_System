@@ -1,8 +1,15 @@
 package com.example;
 
+import java.io.IOException;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 /**
  * Controller class for the main Dashboard view.
@@ -13,13 +20,29 @@ public class DashboardController {
     @FXML
     private Label statusLabel; // This links to the Label in the FXML
 
+    @FXML
+    private Button manageStudentsButton; // Add fx:id to this button in Dashboard.fxml
+
     // --- Action Handlers ---
 
     @FXML
     private void handleManageStudents(ActionEvent event) {
-        // TODO: Logic for opening the Student Management view will go here
         statusLabel.setText("Opening Student Management...");
-        System.out.println("Manage Students button clicked.");
+        try {
+            // Load the student management FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/StudentManagement.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage from the event source (the button)
+            Stage stage = (Stage) manageStudentsButton.getScene().getWindow();
+
+            // Set the new scene on the current stage
+            stage.setScene(new Scene(root));
+            stage.setTitle("Student Management");
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error: Could not load student management view.");
+        }
     }
 
     @FXML

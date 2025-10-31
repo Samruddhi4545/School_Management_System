@@ -1,0 +1,127 @@
+package com.example;
+
+import java.io.IOException;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+public class StudentManagementController {
+
+    @FXML private TableView<Student> studentTableView;
+    @FXML private TableColumn<Student, String> idColumn;
+    @FXML private TableColumn<Student, String> nameColumn;
+    @FXML private TableColumn<Student, String> gradeLevelColumn;
+    @FXML private TextField studentIdField;
+    @FXML private TextField nameField;
+    @FXML private TextField gradeLevelField;
+    @FXML private Button addButton;
+    @FXML private Button updateButton;
+    @FXML private Button deleteButton;
+    @FXML private Button backButton;
+    @FXML private Label statusLabel;
+
+    private SchoolSystem schoolSystem;
+    private ObservableList<Student> studentList = FXCollections.observableArrayList();
+
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded.
+     */
+    @FXML
+    public void initialize() {
+        schoolSystem = new SchoolSystem();
+
+        // Set up the columns in the table
+        idColumn.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
+        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        gradeLevelColumn.setCellValueFactory(cellData -> cellData.getValue().gradeLevelProperty());
+
+        // Load student data
+        loadStudentData();
+
+        // Add listener for table selection changes
+        studentTableView.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) -> showStudentDetails(newValue));
+    }
+
+    private void loadStudentData() {
+        studentList.setAll(schoolSystem.getAllStudents());
+        studentTableView.setItems(studentList);
+        statusLabel.setText("Loaded " + studentList.size() + " students.");
+    }
+
+    private void showStudentDetails(Student student) {
+        if (student != null) {
+            studentIdField.setText(student.getStudentId());
+            nameField.setText(student.getName());
+            gradeLevelField.setText(student.getGradeLevel());
+            studentIdField.setEditable(false); // ID should not be changed
+        } else {
+            // Clear fields if no student is selected
+            studentIdField.clear();
+            nameField.clear();
+            gradeLevelField.clear();
+            studentIdField.setEditable(true);
+        }
+    }
+
+    @FXML
+    private void handleAddStudent(ActionEvent event) {
+        // TODO: Implement add student logic
+        // 1. Validate input fields
+        // 2. Create new Student object
+        // 3. Call schoolSystem.addStudent(newStudent)
+        // 4. Refresh the table view
+        statusLabel.setText("Add Student functionality not implemented yet.");
+    }
+
+    @FXML
+    private void handleUpdateStudent(ActionEvent event) {
+        // TODO: Implement update student logic
+        statusLabel.setText("Update Student functionality not implemented yet.");
+    }
+
+    @FXML
+    private void handleDeleteStudent(ActionEvent event) {
+        // TODO: Implement delete student logic
+        statusLabel.setText("Delete Student functionality not implemented yet.");
+    }
+
+    /**
+     * Handles the action of clicking the 'Back to Dashboard' button.
+     * Navigates the user back to the main dashboard view.
+     */
+    @FXML
+    private void handleBack(ActionEvent event) {
+        try {
+            // Load the dashboard FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage from the button and set the new scene
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("School Management System");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error: Could not load dashboard.");
+            Alert alert = new Alert(AlertType.ERROR, "Failed to load the dashboard view.", ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
+}
