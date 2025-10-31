@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -79,34 +82,52 @@ public class SchoolSystem {
 
     /**
      * Returns a list of all students currently in the database (summary view).
-     * FIX: Calls helper methods to load all related data to ensure correct counts are displayed.
+     * REFACTORED to be more efficient and avoid the N+1 query problem.
      */
     public List<Student> getAllStudents() {
-        List<Student> studentList = new ArrayList<>();
-        String sql = "SELECT id, name, grade_level FROM students";
+        // Use a map for quick student lookup by ID
+        Map<String, Student> studentMap = new HashMap<>();
+        String sqlStudents = "SELECT id, name, grade_level FROM students";
         
         try (Connection conn = DatabaseManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery()) {
+            Statement stmt = conn.createStatement()) {
 
-            while (rs.next()) {
-                // 1. Load basic info
-                Student s = new Student();
-                s.setStudentId(rs.getString("id"));
-                s.setName(rs.getString("name"));
-                s.setGradeLevel(rs.getString("grade_level"));
-                
-                // 2. LOAD ALL RELATED RECORDS (FIX for summary count bug)
-                loadStudentGrades(conn, s);
-                loadStudentAttendance(conn, s);
-                
-                studentList.add(s);
+            // 1. Fetch all students and populate the map
+            try (ResultSet rs = stmt.executeQuery(sqlStudents)) {
+                while (rs.next()) {
+                    Student s = new Student();
+                    s.setStudentId(rs.getString("id"));
+                    s.setName(rs.getString("name"));
+                    s.setGradeLevel(rs.getString("grade_level"));
+                    studentMap.put(s.getStudentId(), s);
+                }
             }
 
+            // 2. Fetch all grades and assign them to the correct students
+            String sqlGrades = "SELECT student_id, subject, score FROM grades";
+            try (ResultSet rs = stmt.executeQuery(sqlGrades)) {
+                while (rs.next()) {
+                    Student s = studentMap.get(rs.getString("student_id"));
+                    if (s != null) {
+                        s.addGrade(rs.getString("subject"), rs.getInt("score"));
+                    }
+                }
+            }
+
+            // 3. Fetch all attendance records and assign them
+            String sqlAttendance = "SELECT student_id, date, status FROM attendance";
+            try (ResultSet rs = stmt.executeQuery(sqlAttendance)) {
+            while (rs.next()) {
+                    Student s = studentMap.get(rs.getString("student_id"));
+                    if (s != null) {
+                        s.recordAttendance(LocalDate.parse(rs.getString("date")), rs.getString("status"));
+                    }
+                }
+            }
         } catch (SQLException e) {
             System.err.println("Error getting all students: " + e.getMessage());
         }
-        return studentList;
+        return new ArrayList<>(studentMap.values());
     }
     
     // --- Student Management (UPDATE) ---
@@ -142,8 +163,8 @@ public class SchoolSystem {
             conn.setAutoCommit(false);
 
             try (PreparedStatement pstmtGrades = conn.prepareStatement(sqlDeleteGrades);
-                 PreparedStatement pstmtAttendance = conn.prepareStatement(sqlDeleteAttendance);
-                 PreparedStatement pstmtStudent = conn.prepareStatement(sqlDeleteStudent)) {
+                PreparedStatement pstmtAttendance = conn.prepareStatement(sqlDeleteAttendance);
+                PreparedStatement pstmtStudent = conn.prepareStatement(sqlDeleteStudent)) {
 
                 // Delete grades and attendance first to satisfy foreign key constraints
                 pstmtGrades.setString(1, studentId);
