@@ -198,10 +198,7 @@ public class SchoolSystem {
     
     public double calculateOverallAverage(String studentId) {
         Student s = findStudentById(studentId);
-        if (s == null) {
-            System.err.println("Cannot calculate average. Student not found with ID: " + studentId);
-            return 0.0;
-        }
+        if (s == null) return 0.0;
 
         List<Integer> allGrades = s.getGrades().values().stream()
             .flatMap(List::stream)
@@ -214,16 +211,13 @@ public class SchoolSystem {
     
     public double calculateSubjectAverage(String studentId, String subject) {
         Student s = findStudentById(studentId);
-        if (s == null) {
-            System.err.println("Cannot calculate subject average. Student not found with ID: " + studentId);
-            return 0.0;
-        }
+        if (s == null) return 0.0;
         
         List<Integer> subjectGrades = s.getGrades().get(subject);
         
         if (subjectGrades == null || subjectGrades.isEmpty()) return 0.0;
         
         int sum = subjectGrades.stream().mapToInt(Integer::intValue).sum();
-        return (double) sum / subjectGrades.size();
+  git       return (double) sum / subjectGrades.size();
     }
 }
