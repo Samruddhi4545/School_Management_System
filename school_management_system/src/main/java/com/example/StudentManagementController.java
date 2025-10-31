@@ -136,8 +136,23 @@ public class StudentManagementController {
 
     @FXML
     private void handleDeleteStudent(ActionEvent event) {
-        // TODO: Implement delete student logic
-        statusLabel.setText("Delete Student functionality not implemented yet.");
+        Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+        if (selectedStudent == null) {
+            Alert alert = new Alert(AlertType.WARNING, "No student selected. Please select a student to delete.", ButtonType.OK);
+            alert.showAndWait();
+            statusLabel.setText("Warning: No student selected for deletion.");
+            return;
+        }
+
+        Alert confirmation = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedStudent.getName() + "?", ButtonType.YES, ButtonType.NO);
+        confirmation.setHeaderText("Confirm Deletion");
+        confirmation.showAndWait();
+
+        if (confirmation.getResult() == ButtonType.YES) {
+            schoolSystem.deleteStudent(selectedStudent.getStudentId());
+            loadStudentData(); // Refresh the table
+            statusLabel.setText("Successfully deleted student: " + selectedStudent.getName());
+        }
     }
 
     /**

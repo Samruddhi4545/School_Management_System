@@ -129,6 +129,45 @@ public class SchoolSystem {
         }
     }
 
+    // --- Student Management (DELETE) ---
+
+    public void deleteStudent(String studentId) {
+        // It's good practice to delete related records first if ON DELETE CASCADE is not set.
+        String sqlDeleteGrades = "DELETE FROM grades WHERE student_id = ?";
+        String sqlDeleteAttendance = "DELETE FROM attendance WHERE student_id = ?";
+        String sqlDeleteStudent = "DELETE FROM students WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            // Disable auto-commit to run as a single transaction
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmtGrades = conn.prepareStatement(sqlDeleteGrades);
+                 PreparedStatement pstmtAttendance = conn.prepareStatement(sqlDeleteAttendance);
+                 PreparedStatement pstmtStudent = conn.prepareStatement(sqlDeleteStudent)) {
+
+                // Delete grades and attendance first to satisfy foreign key constraints
+                pstmtGrades.setString(1, studentId);
+                pstmtGrades.executeUpdate();
+
+                pstmtAttendance.setString(1, studentId);
+                pstmtAttendance.executeUpdate();
+
+                // Finally, delete the student
+                pstmtStudent.setString(1, studentId);
+                pstmtStudent.executeUpdate();
+
+                conn.commit(); // Commit the transaction
+                System.out.println("Student with ID " + studentId + " and related records deleted from DB.");
+
+            } catch (SQLException e) {
+                conn.rollback(); // Rollback on error
+                System.err.println("Error deleting student from database: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.err.println("Error managing transaction for student deletion: " + e.getMessage());
+        }
+    }
+
     // --- Grade Management (CREATE/UPDATE) ---
 
     public void recordGrade(String studentId, String subject, int score) {
