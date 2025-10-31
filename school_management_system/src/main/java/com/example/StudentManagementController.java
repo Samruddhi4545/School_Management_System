@@ -102,9 +102,23 @@ public class StudentManagementController {
 
         Student newStudent = new Student(studentId, name, gradeLevel);
         schoolSystem.addStudent(newStudent);
-        loadStudentData(); // Refresh the table
+
+        // --- IMPROVEMENT: Refresh table and select the new student ---
+        // 1. Refresh the underlying list with new data
+        studentList.setAll(schoolSystem.getAllStudents());
+
+        // 2. Find the newly added student in the list
+        // We can do this by streaming and filtering, or a simple loop.
+        Student studentToSelect = studentList.stream()
+            .filter(s -> s.getStudentId().equals(studentId))
+            .findFirst()
+            .orElse(null); // Should always be found
+
+        // 3. Select and scroll to the new student in the TableView
+        studentTableView.getSelectionModel().select(studentToSelect);
+        studentTableView.scrollTo(studentToSelect);
+
         statusLabel.setText("Successfully added student: " + name);
-        showStudentDetails(null); // Clear input fields
     }
 
     @FXML
