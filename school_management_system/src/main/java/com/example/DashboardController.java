@@ -34,7 +34,7 @@ public class DashboardController {
             Parent root = loader.load();
 
             // Get the current stage from the event source (the button)
-            Stage stage = (Stage) manageStudentsButton.getScene().getWindow();
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
 
             // Set the new scene on the current stage
             stage.setScene(new Scene(root));
@@ -52,8 +52,8 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/GradeManagement.fxml"));
             Parent root = loader.load();
 
-            // Assuming the button to get the scene is the same as for manage students
-            Stage stage = (Stage) manageStudentsButton.getScene().getWindow();
+            // Get the current stage from the event source (the button)
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
 
             stage.setScene(new Scene(root));
             stage.setTitle("Grade Management");
@@ -65,8 +65,19 @@ public class DashboardController {
 
     @FXML
     private void handleTrackAttendance(ActionEvent event) {
-        // TODO: Logic for opening the Attendance view will go here
         statusLabel.setText("Opening Attendance Tracking...");
-        System.out.println("Track Attendance button clicked.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/AttendanceTracking.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage from the event source (the button)
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("Attendance Tracking");
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error: Could not load attendance tracking view.");
+        }
     }
 }
