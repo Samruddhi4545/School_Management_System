@@ -81,12 +81,30 @@ public class StudentManagementController {
 
     @FXML
     private void handleAddStudent(ActionEvent event) {
-        // TODO: Implement add student logic
-        // 1. Validate input fields
-        // 2. Create new Student object
-        // 3. Call schoolSystem.addStudent(newStudent)
-        // 4. Refresh the table view
-        statusLabel.setText("Add Student functionality not implemented yet.");
+        String studentId = studentIdField.getText();
+        String name = nameField.getText();
+        String gradeLevel = gradeLevelField.getText();
+
+        if (studentId.isEmpty() || name.isEmpty() || gradeLevel.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "All fields must be filled.", ButtonType.OK);
+            alert.showAndWait();
+            statusLabel.setText("Error: All fields are required.");
+            return;
+        }
+
+        // Optional: Check if student ID already exists
+        if (schoolSystem.findStudentById(studentId) != null) {
+            Alert alert = new Alert(AlertType.ERROR, "A student with this ID already exists.", ButtonType.OK);
+            alert.showAndWait();
+            statusLabel.setText("Error: Student ID already exists.");
+            return;
+        }
+
+        Student newStudent = new Student(studentId, name, gradeLevel);
+        schoolSystem.addStudent(newStudent);
+        loadStudentData(); // Refresh the table
+        statusLabel.setText("Successfully added student: " + name);
+        showStudentDetails(null); // Clear input fields
     }
 
     @FXML
