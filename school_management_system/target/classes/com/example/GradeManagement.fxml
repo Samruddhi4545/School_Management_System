@@ -11,39 +11,39 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.GradeManagementController">
-   <children>
-      <VBox alignment="TOP_CENTER" layoutX="50.0" layoutY="50.0" prefHeight="500.0" prefWidth="700.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
-         <children>
+<children>
+    <VBox alignment="TOP_CENTER" layoutX="50.0" layoutY="50.0" prefHeight="500.0" prefWidth="700.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+        <children>
             <Label text="Record Student Grades">
-               <font>
-                  <Font name="System Bold" size="24.0" />
-               </font>
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
             </Label>
             <HBox alignment="CENTER" spacing="10.0">
-               <children>
-                  <Label text="Student:" />
-                  <ComboBox fx:id="studentComboBox" prefWidth="250.0" promptText="Select Student" />
-               </children>
+            <children>
+                <Label text="Student:" />
+                <ComboBox fx:id="studentComboBox" prefWidth="250.0" promptText="Select Student" />
+            </children>
             </HBox>
             <HBox alignment="CENTER" spacing="10.0">
-               <children>
-                  <Label text="Subject:" />
-                  <TextField fx:id="subjectField" promptText="e.g., Math" />
-                  <Label text="Grade:" />
-                  <TextField fx:id="gradeField" prefWidth="100.0" promptText="e.g., A+" />
-               </children>
+            <children>
+                <Label text="Subject:" />
+                <TextField fx:id="subjectField" promptText="e.g., Math" />
+                <Label text="Grade:" />
+                <TextField fx:id="gradeField" prefWidth="100.0" promptText="e.g., A+" />
+            </children>
             </HBox>
             <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveGrade" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Save Grade">
-               <font>
-                  <Font size="14.0" />
-               </font>
+            <font>
+                <Font size="14.0" />
+            </font>
             </Button>
             <Label fx:id="statusLabel" text="Status: Ready" textFill="#555555" />
             <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" text="Back to Dashboard" />
-         </children>
-         <padding>
+        </children>
+        <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-      </VBox>
-   </children>
+        </padding>
+    </VBox>
+</children>
 </AnchorPane>
