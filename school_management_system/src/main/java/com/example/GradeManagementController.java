@@ -91,16 +91,6 @@ public class GradeManagementController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("School Management System");
-        } catch (IOException e) {
-            e.printStackTrace();
-            statusLabel.setText("Error: Could not load dashboard.");
-        }
+        NavigationManager.switchScene(event, "/com/example/Dashboard.fxml", "School Management System");
     }
 }

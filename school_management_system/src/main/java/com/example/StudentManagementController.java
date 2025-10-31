@@ -1,14 +1,9 @@
 package com.example;
 
-import java.io.IOException;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -17,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
 public class StudentManagementController {
 
@@ -182,21 +176,6 @@ public class StudentManagementController {
      */
     @FXML
     private void handleBack(ActionEvent event) {
-        try {
-            // Load the dashboard FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
-            Parent root = loader.load();
-
-            // Get the current stage from the button and set the new scene
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("School Management System");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            statusLabel.setText("Error: Could not load dashboard.");
-            Alert alert = new Alert(AlertType.ERROR, "Failed to load the dashboard view.", ButtonType.OK);
-            alert.showAndWait();
-        }
+        NavigationManager.switchScene(event, "/com/example/Dashboard.fxml", "School Management System");
     }
 }
