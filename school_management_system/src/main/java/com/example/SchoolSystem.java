@@ -109,6 +109,26 @@ public class SchoolSystem {
         return studentList;
     }
     
+    // --- Student Management (UPDATE) ---
+
+    public void updateStudent(Student student) {
+        String sql = "UPDATE students SET name = ?, grade_level = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, student.getName());
+            pstmt.setString(2, student.getGradeLevel());
+            pstmt.setString(3, student.getStudentId());
+            pstmt.executeUpdate();
+
+            System.out.println("Student updated in DB: " + student.getName());
+
+        } catch (SQLException e) {
+            System.err.println("Error updating student in database: " + e.getMessage());
+        }
+    }
+
     // --- Grade Management (CREATE/UPDATE) ---
 
     public void recordGrade(String studentId, String subject, int score) {
@@ -218,6 +238,6 @@ public class SchoolSystem {
         if (subjectGrades == null || subjectGrades.isEmpty()) return 0.0;
         
         int sum = subjectGrades.stream().mapToInt(Integer::intValue).sum();
-  git       return (double) sum / subjectGrades.size();
+        return (double) sum / subjectGrades.size();
     }
 }

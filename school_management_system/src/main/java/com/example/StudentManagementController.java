@@ -109,8 +109,29 @@ public class StudentManagementController {
 
     @FXML
     private void handleUpdateStudent(ActionEvent event) {
-        // TODO: Implement update student logic
-        statusLabel.setText("Update Student functionality not implemented yet.");
+        Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+        if (selectedStudent == null) {
+            Alert alert = new Alert(AlertType.WARNING, "No student selected. Please select a student from the table to update.", ButtonType.OK);
+            alert.showAndWait();
+            statusLabel.setText("Warning: No student selected for update.");
+            return;
+        }
+
+        String name = nameField.getText();
+        String gradeLevel = gradeLevelField.getText();
+
+        if (name.isEmpty() || gradeLevel.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "Name and Grade Level fields cannot be empty.", ButtonType.OK);
+            alert.showAndWait();
+            statusLabel.setText("Error: Required fields are empty.");
+            return;
+        }
+
+        Student updatedStudent = new Student(selectedStudent.getStudentId(), name, gradeLevel);
+        schoolSystem.updateStudent(updatedStudent);
+
+        loadStudentData(); // Refresh the table
+        statusLabel.setText("Successfully updated student: " + name);
     }
 
     @FXML
