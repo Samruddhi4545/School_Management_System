@@ -141,10 +141,15 @@ public class StudentManagementController {
             return;
         }
 
-        Student updatedStudent = new Student(selectedStudent.getStudentId(), name, gradeLevel);
-        schoolSystem.updateStudent(updatedStudent);
+        // Create a temporary student object just for the DB update method
+        Student studentWithUpdates = new Student(selectedStudent.getStudentId(), name, gradeLevel);
+        schoolSystem.updateStudent(studentWithUpdates);
 
-        loadStudentData(); // Refresh the table
+        // --- IMPROVEMENT: Update the model in-place instead of reloading ---
+        // The TableView is bound to the properties of the Student objects.
+        // By updating the properties of the selected student, the UI will refresh automatically.
+        selectedStudent.setName(name);
+        selectedStudent.setGradeLevel(gradeLevel);
         statusLabel.setText("Successfully updated student: " + name);
     }
 
@@ -163,9 +168,11 @@ public class StudentManagementController {
         confirmation.showAndWait();
 
         if (confirmation.getResult() == ButtonType.YES) {
+            String deletedStudentName = selectedStudent.getName();
             schoolSystem.deleteStudent(selectedStudent.getStudentId());
-            loadStudentData(); // Refresh the table
-            statusLabel.setText("Successfully deleted student: " + selectedStudent.getName());
+            // --- IMPROVEMENT: Remove the item directly from the list ---
+            studentList.remove(selectedStudent);
+            statusLabel.setText("Successfully deleted student: " + deletedStudentName);
         }
     }
 
