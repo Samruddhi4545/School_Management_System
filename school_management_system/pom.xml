@@ -51,16 +51,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.0.2</version>
         </plugin>
+        
         <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-            <source>21</source>
-            <target>21</target>
-            <compilerArgs>
-            --module-path ${project.basedir}/lib/ --add-modules javafx.controls,javafx.fxml
-            </compilerArgs>
-        </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version> <configuration>
+                <source>21</source>
+                <target>21</target>
+            </configuration>
         </plugin>
         <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
