@@ -1,99 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.school</groupId>
-  <artifactId>school_management_system</artifactId>
-  <version>1.0-SNAPSHOT</version>
+<groupId>com.school</groupId>
+<artifactId>school_management_system</artifactId>
+<version>1.0-SNAPSHOT</version>
+<name>school_management_system</name>
+<url>http://www.example.com</url>
 
-  <name>school_management_system</name>
-  <url>http://www.example.com</url>
-
-  <properties>
+<properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-  </properties>
+</properties>
 
-  <dependencies>
+<dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.11</version>
+    <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.xerial</groupId>
-      <artifactId>sqlite-jdbc</artifactId>
-      <version>3.42.0.0</version>
+    <groupId>org.xerial</groupId>
+    <artifactId>sqlite-jdbc</artifactId>
+    <version>3.42.0.0</version>
     </dependency>
     
     <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>21</version>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-controls</artifactId>
+    <version>21</version>
     </dependency>
     <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-fxml</artifactId>
-      <version>21</version>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-fxml</artifactId>
+    <version>21</version>
     </dependency>
     <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.50.3.0</version>
     </dependency>
-  </dependencies>
+</dependencies>
 
-  <build>
+<build>
     <pluginManagement>
-      <plugins>
+    <plugins>
         <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
         </plugin>
         <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-          <configuration>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
             <source>21</source>
             <target>21</target>
             <compilerArgs>
-              --module-path ${project.basedir}/lib/ --add-modules javafx.controls,javafx.fxml
+            --module-path ${project.basedir}/lib/ --add-modules javafx.controls,javafx.fxml
             </compilerArgs>
-          </configuration>
+        </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
         </plugin>
         <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
         </plugin>
         <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.0.0</version>
         </plugin>
-      </plugins>
+    </plugins>
     </pluginManagement>
-  </build>
+</build>
 </project>
