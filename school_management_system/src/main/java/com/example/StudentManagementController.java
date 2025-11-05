@@ -22,13 +22,15 @@ public class StudentManagementController {
     @FXML private TextField studentIdField;
     @FXML private TextField nameField;
     @FXML private TextField gradeLevelField;
-    @FXML private Button addButton;
+    @FXML@SuppressWarnings("unused")
+    private Button addButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
     @FXML private Button backButton;
     @FXML private Label statusLabel;
 
     private SchoolSystem schoolSystem;
+    @SuppressWarnings("FieldMayBeFinal")
     private ObservableList<Student> studentList = FXCollections.observableArrayList();
 
     /**
@@ -74,7 +76,8 @@ public class StudentManagementController {
     }
 
     @FXML
-    private void handleAddStudent(ActionEvent event) {
+    @SuppressWarnings("unused")
+    private void handleAddStudent(@SuppressWarnings("unused") ActionEvent event) {
         String studentId = studentIdField.getText();
         String name = nameField.getText();
         String gradeLevel = gradeLevelField.getText();
@@ -116,7 +119,8 @@ public class StudentManagementController {
     }
 
     @FXML
-    private void handleUpdateStudent(ActionEvent event) {
+    @SuppressWarnings("unused")
+    private void handleUpdateStudent(@SuppressWarnings("unused") ActionEvent event) {
         Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
         if (selectedStudent == null) {
             Alert alert = new Alert(AlertType.WARNING, "No student selected. Please select a student from the table to update.", ButtonType.OK);
@@ -148,6 +152,7 @@ public class StudentManagementController {
     }
 
     @FXML
+    @SuppressWarnings("unused")
     private void handleDeleteStudent(ActionEvent event) {
         Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
         if (selectedStudent == null) {
@@ -175,7 +180,32 @@ public class StudentManagementController {
      * Navigates the user back to the main dashboard view.
      */
     @FXML
+    @SuppressWarnings("unused")
     private void handleBack(ActionEvent event) {
         NavigationManager.switchScene(event, "/com/example/Dashboard.fxml", "School Management System");
+    }
+
+    public Button getUpdateButton() {
+        return updateButton;
+    }
+
+    public void setUpdateButton(Button updateButton) {
+        this.updateButton = updateButton;
+    }
+
+    public Button getDeleteButton() {
+        return deleteButton;
+    }
+
+    public void setDeleteButton(Button deleteButton) {
+        this.deleteButton = deleteButton;
+    }
+
+    public Button getBackButton() {
+        return backButton;
+    }
+
+    public void setBackButton(Button backButton) {
+        this.backButton = backButton;
     }
 }

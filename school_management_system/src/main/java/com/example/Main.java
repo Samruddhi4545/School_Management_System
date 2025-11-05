@@ -8,19 +8,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main extends Application { // ⬅️ CRITICAL CHANGE: Extend Application
+public class Main extends Application { // CRITICAL CHANGE: Extend Application
 
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
 
     @Override
+    @SuppressWarnings("CallToPrintStackTrace")
     public void start(Stage primaryStage) {
         try {
             // 1. Initialize the database before loading the UI
             DatabaseManager.initializeDatabase();
             
             // 2. Load the FXML file for the main application layout (The Dashboard)
-            // ⬇️ NOTE: Path is corrected based on your screenshot structure ⬇️
+            //NOTE: Path is corrected based on your screenshot structure
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
             Parent root = loader.load();
 
@@ -30,7 +31,7 @@ public class Main extends Application { // ⬅️ CRITICAL CHANGE: Extend Applic
             primaryStage.show();
             
         } catch (IOException e) {
-            System.err.println("❌ ERROR: Could not load FXML file. Check path and file: " + e.getMessage());
+            System.err.println("ERROR: Could not load FXML file. Check path and file: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -39,7 +40,7 @@ public class Main extends Application { // ⬅️ CRITICAL CHANGE: Extend Applic
      * The main method now simply starts the JavaFX application lifecycle.
      */
     public static void main(String[] args) {
-        // ⬅️ CRITICAL CHANGE: Calls the JavaFX launcher method
+        // CRITICAL CHANGE: Calls the JavaFX launcher method
         launch(args);
         
         // The old CLI code (printMenu, scanner logic, etc.) is removed

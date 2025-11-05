@@ -40,6 +40,7 @@ public class Student {
     /**
      * Standard constructor (Used when adding a student).
      */
+    @SuppressWarnings("OverridableMethodCallInConstructor")
     public Student(String studentId, String name, String gradeLevel) {
         this(); // Call default constructor to initialize maps
         // Set the property values

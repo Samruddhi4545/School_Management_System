@@ -1,15 +1,11 @@
 package com.example;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -17,7 +13,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class AttendanceTrackingController {
@@ -25,7 +20,8 @@ public class AttendanceTrackingController {
     @FXML private ComboBox<Student> studentComboBox;
     @FXML private DatePicker datePicker;
     @FXML private ComboBox<String> statusComboBox;
-    @FXML private Button recordButton;
+    @FXML@SuppressWarnings("unused")
+    private Button recordButton;
     @FXML private Button backButton;
     @FXML private Label statusLabel;
 
@@ -64,6 +60,7 @@ public class AttendanceTrackingController {
     }
 
     @FXML
+    @SuppressWarnings("unused")
     private void handleRecordAttendance(ActionEvent event) {
         Student selectedStudent = studentComboBox.getSelectionModel().getSelectedItem();
         LocalDate date = datePicker.getValue();
@@ -85,7 +82,32 @@ public class AttendanceTrackingController {
     }
 
     @FXML
+    @SuppressWarnings("unused")
     private void handleBack(ActionEvent event) {
         NavigationManager.switchScene(event, "/com/example/Dashboard.fxml", "School Management System");
+    }
+
+    public Button getRecordButton() {
+        return recordButton;
+    }
+
+    public void setRecordButton(Button recordButton) {
+        this.recordButton = recordButton;
+    }
+
+    public Button getBackButton() {
+        return backButton;
+    }
+
+    public void setBackButton(Button backButton) {
+        this.backButton = backButton;
+    }
+
+    public ObservableList<Student> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(ObservableList<Student> studentList) {
+        this.studentList = studentList;
     }
 }

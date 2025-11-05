@@ -24,6 +24,7 @@ public class NavigationManager {
      * @param fxmlFile The path to the FXML file to load (e.g., "/com/example/Dashboard.fxml").
      * @param title The title to set for the new scene.
      */
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void switchScene(ActionEvent event, String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(NavigationManager.class.getResource(fxmlFile));

@@ -27,30 +27,35 @@ public class DatabaseManager {
      */
     public static void initializeDatabase() {
         // SQL statements to create tables
-        String sqlStudents = "CREATE TABLE IF NOT EXISTS students (\n"
-                + " id TEXT PRIMARY KEY,\n"
-                + " name TEXT NOT NULL,\n"
-                + " grade_level TEXT NOT NULL\n"
-                + ");";
+        String sqlStudents = """
+                            CREATE TABLE IF NOT EXISTS students (
+                            id TEXT PRIMARY KEY,
+                            name TEXT NOT NULL,
+                            grade_level TEXT NOT NULL
+                            );""";
 
         // Grades table linked to students using a Foreign Key (student_id)
-        String sqlGrades = "CREATE TABLE IF NOT EXISTS grades (\n"
-                + " id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-                + " student_id TEXT NOT NULL,\n"
-                + " subject TEXT NOT NULL,\n"
-                + " score INTEGER NOT NULL,\n"
-                + " FOREIGN KEY (student_id) REFERENCES students (id)\n"
-                + ");";
+        String sqlGrades = """
+                        CREATE TABLE IF NOT EXISTS grades (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            student_id TEXT NOT NULL,
+                            subject TEXT NOT NULL,
+                            score INTEGER NOT NULL,
+                            FOREIGN KEY (student_id) REFERENCES students (id)
+                        );""";
 
         // Attendance table linked to students using a Foreign Key (student_id)
         // Note: INSERT OR REPLACE is used in SchoolSystem for simpler date-based updates
-        String sqlAttendance = "CREATE TABLE IF NOT EXISTS attendance (\n"
-                + " student_id TEXT NOT NULL,\n"
-                + " date TEXT NOT NULL,\n" // Stored as YYYY-MM-DD
-                + " status TEXT NOT NULL,\n" // PRESENT, ABSENT, LATE
-                + " PRIMARY KEY (student_id, date),\n"
-                + " FOREIGN KEY (student_id) REFERENCES students (id)\n"
-                + ");";
+        String sqlAttendance = """
+                            CREATE TABLE IF NOT EXISTS attendance (
+                                student_id TEXT NOT NULL,
+                                date TEXT NOT NULL,
+                                status TEXT NOT NULL,
+                                PRIMARY KEY (student_id, date),
+                                FOREIGN KEY (student_id) REFERENCES students (id)
+                               );""" // Stored as YYYY-MM-DD
+        // PRESENT, ABSENT, LATE
+        ;
 
         try (Connection conn = getConnection();
             Statement stmt = conn.createStatement()) {
@@ -60,10 +65,10 @@ public class DatabaseManager {
             stmt.execute(sqlGrades);
             stmt.execute(sqlAttendance);
             
-            System.out.println("✅ Database 'school.db' initialized and tables verified.");
+            System.out.println("Database 'school.db' initialized and tables verified.");
             
         } catch (SQLException e) {
-            System.err.println("❌ Error initializing database: " + e.getMessage());
+            System.err.println(" Error initializing database: " + e.getMessage());
         }
     }
 }
