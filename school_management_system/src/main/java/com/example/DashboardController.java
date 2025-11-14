@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 public class DashboardController {
 
     @FXML
-    private Label statusLabel; // This links to the Label in the FXML
+    private Label statusLabel; 
 
     @FXML
     @SuppressWarnings("unused")
@@ -33,13 +33,20 @@ public class DashboardController {
         statusLabel.setText("Opening Attendance Tracking...");
         NavigationManager.switchScene(event, "/com/example/AttendanceTracking.fxml", "Attendance Tracking");
     }
-    
-    // NEW METHOD for Attendance Report
+
+    // ADDED from the attendance report step
     @FXML
     @SuppressWarnings("unused")
     private void handleViewAttendanceReport(ActionEvent event) {
         statusLabel.setText("Opening Attendance Report...");
-        // This will load the new AttendanceReport.fxml view
         NavigationManager.switchScene(event, "/com/example/AttendanceReport.fxml", "Class Attendance Report");
+    }
+    
+    // NEW METHOD for Grade Summary Report
+    @FXML
+    @SuppressWarnings("unused")
+    private void handleViewGradeSummaryReport(ActionEvent event) {
+        statusLabel.setText("Opening Grade Summary Report...");
+        NavigationManager.switchScene(event, "/com/example/GradeSummaryReport.fxml", "Grade Summary Report");
     }
 }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 /**
  * The Manager/Service class, refactored to use JDBC for permanent data storage.
- * No longer uses an in-memory Map for students.
+ * Handles all database operations for students, grades, and attendance.
  */
 public class SchoolSystem {
 
@@ -251,13 +251,13 @@ public class SchoolSystem {
         }
     }
     
-    // --- EXISTING METHOD for Single Student Attendance Report (Kept for completeness) ---
+    // --- EXISTING METHOD for Single Student Attendance Report ---
     public Map<LocalDate, String> getAttendanceForMonth(String studentId, LocalDate startDate, LocalDate endDate) {
         Map<LocalDate, String> monthlyRecords = new HashMap<>();
         String sql = "SELECT date, status FROM attendance WHERE student_id = ? AND date BETWEEN ? AND ? ORDER BY date ASC";
 
         try (Connection conn = DatabaseManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, studentId);
             pstmt.setString(2, startDate.toString());
@@ -278,7 +278,7 @@ public class SchoolSystem {
         return monthlyRecords;
     }
     
-    // 2. NEW METHOD: Fetches attendance records for all students
+    // --- UPDATED: NEW METHOD for ALL Student Attendance Report (4) ---
     public List<AttendanceReportEntry> getAttendanceReportForAll(LocalDate startDate, LocalDate endDate) {
         List<AttendanceReportEntry> reportList = new ArrayList<>();
         
@@ -364,5 +364,27 @@ public class SchoolSystem {
         
         int sum = subjectGrades.stream().mapToInt(Integer::intValue).sum();
         return (double) sum / subjectGrades.size();
+    }
+
+    // --- UPDATED: NEW METHOD for Grade Summary Report (5) ---
+    public List<GradeSummaryEntry> getGradeSummaryForAll() {
+        List<GradeSummaryEntry> summaryList = new ArrayList<>();
+        
+        // 1. Get all students (This ensures their grades map is populated, even if empty)
+        List<Student> allStudents = getAllStudents(); 
+        
+        // 2. Iterate and calculate the average for each
+        for (Student student : allStudents) {
+            // Reuses the existing calculateOverallAverage method
+            double average = calculateOverallAverage(student.getStudentId());
+            
+            summaryList.add(new GradeSummaryEntry(
+                student.getStudentId(),
+                student.getName(),
+                average
+            ));
+        }
+        
+        return summaryList;
     }
 }
