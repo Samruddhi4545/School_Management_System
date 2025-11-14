@@ -22,9 +22,9 @@ public class GradeManagementController {
     // Updated FXML controls for fixed subjects
     @FXML private TextField mathField;
     @FXML private TextField scienceField;
+    @FXML private TextField socialField;
     @FXML private TextField englishField;
-    @FXML private TextField historyField;
-    @FXML private TextField artField;
+    @FXML private TextField kannadaField;
     
     @FXML private Button saveButton;
     @FXML private Button backButton;
@@ -162,7 +162,7 @@ public class GradeManagementController {
 
             // Save all 5 scores in a single DB operation
             schoolSystem.recordGrade(
-                selectedStudent.getStudentId(), 
+                selectedStudent.getStudentId(),
                 scores[0], scores[1], scores[2], scores[3], scores[4]
             );
             
