@@ -8,7 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main extends Application { // CRITICAL CHANGE: Extend Application
+public class Main extends Application {
 
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -43,7 +43,6 @@ public class Main extends Application { // CRITICAL CHANGE: Extend Application
         // CRITICAL CHANGE: Calls the JavaFX launcher method
         launch(args);
         
-        // The old CLI code (printMenu, scanner logic, etc.) is removed
-        // because the GUI now handles all user interaction.
+        // GUI handles all user interaction.
     }
 }
