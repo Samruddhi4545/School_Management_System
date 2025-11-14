@@ -31,7 +31,7 @@ public class GradeSummaryEntry {
      * Full constructor to initialize all properties, including the five subject scores.
      */
     public GradeSummaryEntry(String studentId, String studentName, double overallAverage,
-                             int math, int science, int social, int english, int kannada) {
+                            int math, int science, int social, int english, int kannada) {
         
         this.studentId = new SimpleStringProperty(studentId);
         this.studentName = new SimpleStringProperty(studentName);
