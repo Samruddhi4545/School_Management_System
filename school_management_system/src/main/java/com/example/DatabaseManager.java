@@ -35,18 +35,19 @@ public class DatabaseManager {
                             );""";
 
         // Grades table linked to students using a Foreign Key (student_id)
-        // This is the **FLEXIBLE** schema: one row per grade (student, subject, score)
+        // FIX: Changed schema from FLEXIBLE (row per subject) to FIXED (columns per subject)
         String sqlGrades = """
                         CREATE TABLE IF NOT EXISTS grades (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            student_id TEXT NOT NULL,
-                            subject TEXT NOT NULL,
-                            score INTEGER NOT NULL,
-                            FOREIGN KEY (student_id) REFERENCES students (id)
+                            student_id TEXT PRIMARY KEY,
+                            math_score INTEGER DEFAULT 0,
+                            science_score INTEGER DEFAULT 0,
+                            social_score INTEGER DEFAULT 0,
+                            english_score INTEGER DEFAULT 0,
+                            kannada_score INTEGER DEFAULT 0,
+                            FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE
                         );""";
 
         // Attendance table linked to students using a Foreign Key (student_id)
-        // Note: INSERT OR REPLACE is used in SchoolSystem for simpler date-based updates
         String sqlAttendance = """
                             CREATE TABLE IF NOT EXISTS attendance (
                                 student_id TEXT NOT NULL,
@@ -54,9 +55,9 @@ public class DatabaseManager {
                                 status TEXT NOT NULL,
                                 PRIMARY KEY (student_id, date),
                                 FOREIGN KEY (student_id) REFERENCES students (id)
-                               );""" // Stored as YYYY-MM-DD
+                            );""";
         // PRESENT, ABSENT, LATE
-        ;
+        
 
         try (Connection conn = getConnection();
             Statement stmt = conn.createStatement()) {
@@ -67,7 +68,7 @@ public class DatabaseManager {
             stmt.execute(sqlAttendance);
 
             // Log the correct schema type to confirm
-            System.out.println("Database 'school.db' initialized and tables verified (Flexible Grades Schema).");
+            System.out.println("Database 'school.db' initialized and tables verified (Fixed Grades Schema).");
 
         } catch (SQLException e) {
             System.err.println(" Error initializing database: " + e.getMessage());
