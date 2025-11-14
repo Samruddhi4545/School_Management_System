@@ -1,11 +1,11 @@
 com\example\DashboardController.class
-com\example\GradeManagementController$1.class
-com\example\SchoolSystem.class
 com\example\Main.class
 com\example\NavigationManager.class
-com\example\DatabaseManager.class
 com\example\GradeManagementController.class
 com\example\Student.class
+com\example\StudentManagementController.class
+com\example\GradeManagementController$1.class
+com\example\SchoolSystem.class
+com\example\DatabaseManager.class
 com\example\AttendanceTrackingController$1.class
 com\example\AttendanceTrackingController.class
-com\example\StudentManagementController.class
