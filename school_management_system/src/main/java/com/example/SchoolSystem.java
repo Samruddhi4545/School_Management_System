@@ -44,68 +44,66 @@ public class SchoolSystem {
             System.out.println("Student saved to DB: " + newStudent.getName());
 
         } catch (SQLException e) {
-            System.err.println("Error saving student to database: " + e.getMessage());
+            System.err.println(" Error adding student: " + e.getMessage());
         }
     }
 
     // --- Student Management (READ) ---
 
-    /**
-     * Finds a student by their ID and loads ALL related data (grades, attendance) from the DB.
-     */
     public Student findStudentById(String studentId) {
-        String sqlStudent = "SELECT * FROM students WHERE id = ?";
-        Student s = null;
+        Student student = null;
+        String sql = "SELECT id, name, grade_level FROM students WHERE id = ?";
 
         try (Connection conn = DatabaseManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sqlStudent)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, studentId);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                s = new Student();
-                s.setStudentId(rs.getString("id"));
-                s.setName(rs.getString("name"));
-                s.setGradeLevel(rs.getString("grade_level"));
-                
-                // Load all related data
-                loadStudentGrades(conn, s);
-                loadStudentAttendance(conn, s);
+                student = new Student(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getString("grade_level")
+                );
+                // Load associated data for this student (grades and attendance)
+                loadStudentGrades(conn, student);
+                loadStudentAttendance(conn, student);
             }
 
         } catch (SQLException e) {
-            System.err.println("Error finding student: " + e.getMessage());
+            System.err.println(" Error finding student: " + e.getMessage());
         }
-        return s;
+        return student;
     }
 
-    /**
-     * Returns a list of all students currently in the database (summary view).
-     * REFACTORED to be more efficient and avoid the N+1 query problem.
-     */
     public List<Student> getAllStudents() {
-        // Use a map for quick student lookup by ID
-        Map<String, Student> studentMap = new HashMap<>();
-        String sqlStudents = "SELECT id, name, grade_level FROM students";
-        
-        try (Connection conn = DatabaseManager.getConnection();
-            Statement stmt = conn.createStatement()) {
+        List<Student> studentList = new ArrayList<>();
+        Map<String, Student> studentMap = new HashMap<>(); // To hold students for easy lookup
 
-            // 1. Fetch all students and populate the map
-            try (ResultSet rs = stmt.executeQuery(sqlStudents)) {
+        String sqlStudents = "SELECT id, name, grade_level FROM students";
+        String sqlGrades = "SELECT student_id, subject, score FROM grades";
+        String sqlAttendance = "SELECT student_id, date, status FROM attendance";
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            
+            // 1. Load all students
+            try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlStudents)) {
                 while (rs.next()) {
-                    Student s = new Student();
-                    s.setStudentId(rs.getString("id"));
-                    s.setName(rs.getString("name"));
-                    s.setGradeLevel(rs.getString("grade_level"));
+                    Student s = new Student(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("grade_level")
+                    );
+                    studentList.add(s);
                     studentMap.put(s.getStudentId(), s);
                 }
             }
 
-            // 2. Fetch all grades and assign them to the correct students
-            String sqlGrades = "SELECT student_id, subject, score FROM grades";
-            try (ResultSet rs = stmt.executeQuery(sqlGrades)) {
+            // 2. Load all grades and assign to students
+            try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlGrades)) {
                 while (rs.next()) {
                     Student s = studentMap.get(rs.getString("student_id"));
                     if (s != null) {
@@ -114,27 +112,28 @@ public class SchoolSystem {
                 }
             }
 
-            // 3. Fetch all attendance records and assign them
-            String sqlAttendance = "SELECT student_id, date, status FROM attendance";
-            try (ResultSet rs = stmt.executeQuery(sqlAttendance)) {
-            while (rs.next()) {
+            // 3. Load all attendance and assign to students
+            try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlAttendance)) {
+                while (rs.next()) {
                     Student s = studentMap.get(rs.getString("student_id"));
                     if (s != null) {
                         s.recordAttendance(LocalDate.parse(rs.getString("date")), rs.getString("status"));
                     }
                 }
             }
+
         } catch (SQLException e) {
-            System.err.println("Error getting all students: " + e.getMessage());
+            System.err.println(" Error loading all students: " + e.getMessage());
         }
-        return new ArrayList<>(studentMap.values());
+        return studentList;
     }
-    
+
     // --- Student Management (UPDATE) ---
 
     public void updateStudent(Student student) {
         String sql = "UPDATE students SET name = ?, grade_level = ? WHERE id = ?";
-
+        
         try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -142,67 +141,74 @@ public class SchoolSystem {
             pstmt.setString(2, student.getGradeLevel());
             pstmt.setString(3, student.getStudentId());
             pstmt.executeUpdate();
-
+            
             System.out.println("Student updated in DB: " + student.getName());
 
         } catch (SQLException e) {
-            System.err.println("Error updating student in database: " + e.getMessage());
+            System.err.println(" Error updating student: " + e.getMessage());
         }
     }
 
     // --- Student Management (DELETE) ---
 
     public void deleteStudent(String studentId) {
-        // It's good practice to delete related records first if ON DELETE CASCADE is not set.
+        String sqlDeleteStudent = "DELETE FROM students WHERE id = ?";
         String sqlDeleteGrades = "DELETE FROM grades WHERE student_id = ?";
         String sqlDeleteAttendance = "DELETE FROM attendance WHERE student_id = ?";
-        String sqlDeleteStudent = "DELETE FROM students WHERE id = ?";
 
-        try (Connection conn = DatabaseManager.getConnection()) {
-            // Disable auto-commit to run as a single transaction
-            conn.setAutoCommit(false);
+        Connection conn = null;
+        try {
+            conn = DatabaseManager.getConnection();
+            conn.setAutoCommit(false); // Start transaction
 
-            try (PreparedStatement pstmtGrades = conn.prepareStatement(sqlDeleteGrades);
-                PreparedStatement pstmtAttendance = conn.prepareStatement(sqlDeleteAttendance);
-                PreparedStatement pstmtStudent = conn.prepareStatement(sqlDeleteStudent)) {
-
-                // Delete grades and attendance first to satisfy foreign key constraints
-                pstmtGrades.setString(1, studentId);
-                pstmtGrades.executeUpdate();
-
-                pstmtAttendance.setString(1, studentId);
-                pstmtAttendance.executeUpdate();
-
-                // Finally, delete the student
-                pstmtStudent.setString(1, studentId);
-                pstmtStudent.executeUpdate();
-
-                conn.commit(); // Commit the transaction
-                System.out.println("Student with ID " + studentId + " and related records deleted from DB.");
-
-            } catch (SQLException e) {
-                conn.rollback(); // Rollback on error
-                System.err.println("Error deleting student from database: " + e.getMessage());
+            // 1. Delete Grades
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteGrades)) {
+                pstmt.setString(1, studentId);
+                pstmt.executeUpdate();
             }
+
+            // 2. Delete Attendance
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteAttendance)) {
+                pstmt.setString(1, studentId);
+                pstmt.executeUpdate();
+            }
+
+            // 3. Delete Student
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteStudent)) {
+                pstmt.setString(1, studentId);
+                pstmt.executeUpdate();
+            }
+
+            conn.commit(); // Commit all changes
+            System.out.println("Student, grades, and attendance deleted for ID: " + studentId);
+
         } catch (SQLException e) {
-            System.err.println("Error managing transaction for student deletion: " + e.getMessage());
+            System.err.println("Transaction failed: " + e.getMessage());
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback on error
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Rollback failed: " + rollbackEx.getMessage());
+                }
+            }
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException closeEx) {
+                    System.err.println("Connection close failed: " + closeEx.getMessage());
+                }
+            }
         }
     }
-
-    // --- Grade Management (CREATE/UPDATE) ---
+    
+    // --- Grade and Attendance Recording ---
 
     public void recordGrade(String studentId, String subject, int score) {
-        if (findStudentById(studentId) == null) {
-            System.out.println("Error: Student not found with ID: " + studentId);
-            return;
-        }
-        
-        if (score < 0 || score > 100) {
-            System.out.println(" Error: Score must be between 0 and 100.");
-            return;
-        }
-
+        // Simple insert: no check for duplicates on subject/score as a student can have multiple grades
         String sql = "INSERT INTO grades(student_id, subject, score) VALUES(?, ?, ?)";
+        
         try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -210,48 +216,107 @@ public class SchoolSystem {
             pstmt.setString(2, subject);
             pstmt.setInt(3, score);
             pstmt.executeUpdate();
-
-            System.out.println("Grade recorded in DB: " + subject + " (" + score + "%) for ID " + studentId);
+            
+            // Also update the in-memory Student object if it exists (optional, but good practice)
+            Student s = findStudentById(studentId); 
+            if (s != null) {
+                s.addGrade(subject, score);
+            }
 
         } catch (SQLException e) {
-            System.err.println("Error recording grade: " + e.getMessage());
+            System.err.println(" Error recording grade: " + e.getMessage());
         }
     }
-    
-    // --- Attendance Tracking (CREATE/UPDATE) ---
-    
-    public void recordAttendance(String studentId, LocalDate date, String status) {
-        if (findStudentById(studentId) == null) {
-            System.out.println(" Error: Student not found with ID: " + studentId);
-            return;
-        }
 
-        String finalStatus = status.trim().toUpperCase();
-        if (!finalStatus.equals("PRESENT") && !finalStatus.equals("ABSENT") && !finalStatus.equals("LATE")) 
-        {
-            System.out.println("Error: Invalid status. Use 'Present', 'Absent', or 'Late'.");
-            return;
-        }
-        
-        // INSERT OR REPLACE updates the status if the student/date combination already exists
+    public void recordAttendance(String studentId, LocalDate date, String status) {
+        // Use INSERT OR REPLACE to update an existing attendance record (Primary Key is student_id + date)
         String sql = "INSERT OR REPLACE INTO attendance(student_id, date, status) VALUES(?, ?, ?)";
+        
         try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, studentId);
-            pstmt.setString(2, date.toString());
-            pstmt.setString(3, finalStatus);
+            pstmt.setString(2, date.toString()); // LocalDate is stored as YYYY-MM-DD string
+            pstmt.setString(3, status);
             pstmt.executeUpdate();
-
-            System.out.println(" Attendance recorded in DB for ID " + studentId + " on " + date + ": " + finalStatus);
+            
+            // Also update the in-memory Student object if it exists
+            Student s = findStudentById(studentId);
+            if (s != null) {
+                s.recordAttendance(date, status);
+            }
 
         } catch (SQLException e) {
             System.err.println(" Error recording attendance: " + e.getMessage());
         }
     }
     
-    // --- PRIVATE HELPER METHODS FOR LOADING RELATED DATA ---
+    // --- EXISTING METHOD for Single Student Attendance Report (Kept for completeness) ---
+    public Map<LocalDate, String> getAttendanceForMonth(String studentId, LocalDate startDate, LocalDate endDate) {
+        Map<LocalDate, String> monthlyRecords = new HashMap<>();
+        String sql = "SELECT date, status FROM attendance WHERE student_id = ? AND date BETWEEN ? AND ? ORDER BY date ASC";
+
+        try (Connection conn = DatabaseManager.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, startDate.toString());
+            pstmt.setString(3, endDate.toString());
+            
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                monthlyRecords.put(
+                    LocalDate.parse(rs.getString("date")),
+                    rs.getString("status")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching attendance for month: " + e.getMessage());
+        }
+        return monthlyRecords;
+    }
     
+    // 2. NEW METHOD: Fetches attendance records for all students
+    public List<AttendanceReportEntry> getAttendanceReportForAll(LocalDate startDate, LocalDate endDate) {
+        List<AttendanceReportEntry> reportList = new ArrayList<>();
+        
+        // SQL JOIN to get student name along with attendance status
+        String sql = """
+                     SELECT s.id, s.name, a.date, a.status 
+                     FROM students s
+                     JOIN attendance a ON s.id = a.student_id
+                     WHERE a.date BETWEEN ? AND ? 
+                     ORDER BY s.name ASC, a.date ASC
+                     """;
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, startDate.toString());
+            pstmt.setString(2, endDate.toString());
+            
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                reportList.add(new AttendanceReportEntry(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    LocalDate.parse(rs.getString("date")),
+                    rs.getString("status")
+                ));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching all student attendance report: " + e.getMessage());
+        }
+        return reportList;
+    }
+
+
+    // --- Helper methods to load data into the in-memory Student object ---
+
     private void loadStudentGrades(Connection conn, Student s) throws SQLException {
         String sql = "SELECT subject, score FROM grades WHERE student_id = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
