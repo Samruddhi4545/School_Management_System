@@ -16,9 +16,18 @@ public class GradeSummaryReportController {
 
     @FXML private TableView<GradeSummaryEntry> reportTableView;
     
-    // Columns bound to GradeSummaryEntry properties
+    // Existing fixed columns
     @FXML private TableColumn<GradeSummaryEntry, String> studentIdColumn;
     @FXML private TableColumn<GradeSummaryEntry, String> studentNameColumn;
+    
+    // NEW SUBJECT COLUMNS ADDED HERE
+    @FXML private TableColumn<GradeSummaryEntry, Integer> mathScoreColumn;
+    @FXML private TableColumn<GradeSummaryEntry, Integer> scienceScoreColumn;
+    @FXML private TableColumn<GradeSummaryEntry, Integer> socialScoreColumn; // History/Social
+    @FXML private TableColumn<GradeSummaryEntry, Integer> englishScoreColumn;
+    @FXML private TableColumn<GradeSummaryEntry, Integer> kannadaScoreColumn; // Art/Kannada
+    // END NEW SUBJECT COLUMNS
+    
     @FXML private TableColumn<GradeSummaryEntry, Double> overallAverageColumn;
     
     @FXML private Label statusLabel;
@@ -32,9 +41,19 @@ public class GradeSummaryReportController {
     }
     
     private void configureTableColumns() {
-        // Bind columns to the property methods of the GradeSummaryEntry class
+        // Bind core columns
         studentIdColumn.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
         studentNameColumn.setCellValueFactory(cellData -> cellData.getValue().studentNameProperty());
+
+        // Bind NEW subject columns to Integer properties
+        // .asObject() is necessary to convert IntegerProperty to the generic <..., Integer> type
+        mathScoreColumn.setCellValueFactory(cellData -> cellData.getValue().mathScoreProperty().asObject());
+        scienceScoreColumn.setCellValueFactory(cellData -> cellData.getValue().scienceScoreProperty().asObject());
+        socialScoreColumn.setCellValueFactory(cellData -> cellData.getValue().socialScoreProperty().asObject());
+        englishScoreColumn.setCellValueFactory(cellData -> cellData.getValue().englishScoreProperty().asObject());
+        kannadaScoreColumn.setCellValueFactory(cellData -> cellData.getValue().kannadaScoreProperty().asObject());
+
+        // Bind average column
         overallAverageColumn.setCellValueFactory(cellData -> cellData.getValue().overallAverageProperty().asObject());
 
         // Format the average to two decimal places for display

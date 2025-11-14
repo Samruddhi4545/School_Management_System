@@ -17,15 +17,22 @@
             <font><Font name="System Bold" size="24.0" /></font>
         </Label>
         
-        <Label text="Overall average grades for all students." style="-fx-font-style: italic;" />
+        <Label text="Overall average grades and subject marks for all students." style="-fx-font-style: italic;" />
 
         <Separator />
 
         <TableView fx:id="reportTableView" VBox.vgrow="ALWAYS" prefHeight="400.0">
             <columns>
-                <TableColumn fx:id="studentIdColumn" text="ID" prefWidth="80"/>
-                <TableColumn fx:id="studentNameColumn" text="Student Name" prefWidth="250"/>
-                <TableColumn fx:id="overallAverageColumn" text="Overall Average" prefWidth="150"/>
+                <TableColumn fx:id="studentIdColumn" text="ID" prefWidth="70"/>
+                <TableColumn fx:id="studentNameColumn" text="Student Name" prefWidth="150"/>
+                
+                <TableColumn fx:id="mathScoreColumn" text="Math" prefWidth="60"/>
+                <TableColumn fx:id="scienceScoreColumn" text="Science" prefWidth="60"/>
+                <TableColumn fx:id="socialScoreColumn" text="History/Social" prefWidth="90"/> 
+                <TableColumn fx:id="englishScoreColumn" text="English" prefWidth="60"/>
+                <TableColumn fx:id="kannadaScoreColumn" text="Art/Kannada" prefWidth="80"/> 
+
+                <TableColumn fx:id="overallAverageColumn" text="Avg Grade" prefWidth="80"/>
             </columns>
             <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         </TableView>

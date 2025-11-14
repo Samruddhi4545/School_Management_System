@@ -24,7 +24,7 @@ public class SchoolSystem {
 
     // --- Student Management (CREATE/READ/UPDATE/DELETE) ---
 
-    // ... (addStudent, updateStudent, deleteStudent remain unchanged) ...
+    // ... (addStudent, updateStudent, deleteStudent, getAllStudents, findStudentById, recordGrade remain unchanged) ...
 
     public void addStudent(Student newStudent) {
         if (findStudentById(newStudent.getStudentId()) != null) {
@@ -251,16 +251,24 @@ public class SchoolSystem {
     }
 
     /**
-     * Implements the method required by GradeSummaryReportController.java.
-     * Creates a summary entry for every student, calculating the average grade.
+     * FIX: Implements the method required by GradeSummaryReportController.java.
+     * UPDATED to pass all five subject scores to the new GradeSummaryEntry constructor.
      */
     public List<GradeSummaryEntry> getGradeSummaryForAll() {
         List<Student> students = getAllStudents();
         
         return students.stream().map(s -> {
-            // Uses the constructor signature: (String studentId, String studentName, double overallAverage).
-            // Assumes Student.getAverageGrade() exists.
-            return new GradeSummaryEntry(s.getStudentId(), s.getName(), s.getAverageGrade());
+            // Uses the new 8-argument constructor
+            return new GradeSummaryEntry(
+                s.getStudentId(),
+                s.getName(),
+                s.getAverageGrade(),
+                s.getMathScore(),
+                s.getScienceScore(),
+                s.getSocialScore(), 
+                s.getEnglishScore(),
+                s.getKannadaScore()
+            );
         }).collect(Collectors.toList());
     }
 }
