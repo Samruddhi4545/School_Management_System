@@ -2,7 +2,6 @@ package com.example;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,8 +11,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 public class AttendanceReportController {
 
@@ -63,7 +66,7 @@ public class AttendanceReportController {
         // 2. Clear previous dynamic columns before adding new ones
         // Remove all columns except the first one (Student Name)
         if (reportTableView.getColumns().size() > 1) {
-             reportTableView.getColumns().remove(1, reportTableView.getColumns().size());
+            reportTableView.getColumns().remove(1, reportTableView.getColumns().size());
         } else if (reportTableView.getColumns().isEmpty()) {
             // Re-add studentNameColumn if it was somehow cleared (safe check)
             reportTableView.getColumns().add(studentNameColumn);
