@@ -1,17 +1,20 @@
 package com.example;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
  * The Model/Entity class for a Student.
- * MODIFIED to use JavaFX Properties for UI binding.
+ * UPDATED to use fixed subject scores and calculate total/average grades.
  */
 public class Student {
 
@@ -20,112 +23,133 @@ public class Student {
     private final StringProperty name = new SimpleStringProperty();
     private final StringProperty gradeLevel = new SimpleStringProperty();
 
-    // --- Academic Records (Collections remain the same) ---
-    private Map<String, List<Integer>> grades;
+    // --- Fixed Subject Grade Properties (New) ---
+    private final IntegerProperty mathScore = new SimpleIntegerProperty(0);
+    private final IntegerProperty scienceScore = new SimpleIntegerProperty(0);
+    private final IntegerProperty socialScore = new SimpleIntegerProperty(0);
+    private final IntegerProperty englishScore = new SimpleIntegerProperty(0);
+    private final IntegerProperty kannadaScore = new SimpleIntegerProperty(0);
+
+    // --- Calculated Grade Properties (New) ---
+    private final ReadOnlyIntegerWrapper totalGrade = new ReadOnlyIntegerWrapper(0);
+    private final ReadOnlyDoubleWrapper averageGrade = new ReadOnlyDoubleWrapper(0.0);
+
+    // --- Academic Records (Attendance remains the same) ---
     private Map<LocalDate, String> attendanceRecords;
+
 
     // =======================================================
     // --- CONSTRUCTORS ---
     // =======================================================
 
-    /**
-     * Required default (no-argument) constructor for database loading (JDBC)
-     * AND for creating empty objects to be populated via properties.
-     */
     public Student() {
-        this.grades = new HashMap<>();
+        // Grades map is no longer needed, replaced by fixed properties
         this.attendanceRecords = new HashMap<>();
+        recalculateGrades(); // Initialize calculated properties
     }
 
-    /**
-     * Standard constructor (Used when adding a student).
-     */
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public Student(String studentId, String name, String gradeLevel) {
-        this(); // Call default constructor to initialize maps
-        // Set the property values
-        setStudentId(studentId);
-        setName(name);
-        setGradeLevel(gradeLevel);
-    }
-
-    // =======================================================
-    // --- GETTERS, SETTERS, and PROPERTY METHODS (CRITICAL FOR JAVAFX) ---
-    // =======================================================
-
-    // --- 1. Property Methods (New) ---
-    // The TableView columns must use these property methods to bind data.
-
-    public StringProperty studentIdProperty() {
-        return studentId;
-    }
-
-    public StringProperty nameProperty() {
-        return name;
-    }
-
-    public StringProperty gradeLevelProperty() {
-        return gradeLevel;
-    }
-
-    // --- 2. Standard Getters/Setters (Modified to use properties) ---
-    // These methods are needed for JDBC/SchoolSystem interaction.
-
-    public String getStudentId() {
-        return studentId.get();
-    }
-
-    public void setStudentId(String studentId) {
+        this();
         this.studentId.set(studentId);
-    }
-
-    public String getName() {
-        return name.get();
-    }
-
-    public void setName(String name) {
         this.name.set(name);
-    }
-
-    public String getGradeLevel() {
-        return gradeLevel.get();
-    }
-
-    public void setGradeLevel(String gradeLevel) {
         this.gradeLevel.set(gradeLevel);
     }
 
-    // --- 3. Collection Getters (Unchanged) ---
+    // =======================================================
+    // --- CORE PROPERTY GETTERS/SETTERS (STANDARD) ---
+    // =======================================================
 
-    public Map<String, List<Integer>> getGrades() {
-        return grades;
+    public String getStudentId() { return studentId.get(); }
+    public StringProperty studentIdProperty() { return studentId; }
+    public void setStudentId(String studentId) { this.studentId.set(studentId); }
+
+    public String getName() { return name.get(); }
+    public StringProperty nameProperty() { return name; }
+    public void setName(String name) { this.name.set(name); }
+
+    public String getGradeLevel() { return gradeLevel.get(); }
+    public StringProperty gradeLevelProperty() { return gradeLevel; }
+    public void setGradeLevel(String gradeLevel) { this.gradeLevel.set(gradeLevel); }
+
+    // =======================================================
+    // --- FIXED SCORE GETTERS/SETTERS/PROPERTIES (NEW) ---
+    // =======================================================
+
+    public int getMathScore() { return mathScore.get(); }
+    public IntegerProperty mathScoreProperty() { return mathScore; }
+    public void setMathScore(int mathScore) {
+        this.mathScore.set(mathScore);
+        recalculateGrades();
     }
+
+    public int getScienceScore() { return scienceScore.get(); }
+    public IntegerProperty scienceScoreProperty() { return scienceScore; }
+    public void setScienceScore(int scienceScore) {
+        this.scienceScore.set(scienceScore);
+        recalculateGrades();
+    }
+
+    public int getSocialScore() { return socialScore.get(); }
+    public IntegerProperty socialScoreProperty() { return socialScore; }
+    public void setSocialScore(int socialScore) {
+        this.socialScore.set(socialScore);
+        recalculateGrades();
+    }
+
+    public int getEnglishScore() { return englishScore.get(); }
+    public IntegerProperty englishScoreProperty() { return englishScore; }
+    public void setEnglishScore(int englishScore) {
+        this.englishScore.set(englishScore);
+        recalculateGrades();
+    }
+
+    public int getKannadaScore() { return kannadaScore.get(); }
+    public IntegerProperty kannadaScoreProperty() { return kannadaScore; }
+    public void setKannadaScore(int kannadaScore) {
+        this.kannadaScore.set(kannadaScore);
+        recalculateGrades();
+    }
+
+    // =======================================================
+    // --- CALCULATED GRADE GETTERS/PROPERTIES (NEW) ---
+    // =======================================================
+
+    public int getTotalGrade() { return totalGrade.get(); }
+    public IntegerProperty totalGradeProperty() { return totalGrade; }
+
+    public double getAverageGrade() { return averageGrade.get(); }
+    public DoubleProperty averageGradeProperty() { return averageGrade; }
+
+    /**
+     * Recalculates the Total Grade and Average Grade based on the 5 subject scores.
+     */
+    private void recalculateGrades() {
+        int total = getMathScore() + getScienceScore() + getSocialScore() + getEnglishScore() + getKannadaScore();
+        this.totalGrade.set(total);
+
+        // Calculate average based on 5 subjects, assuming max 100 per subject
+        double avg = (double) total / 5.0;
+        this.averageGrade.set(avg);
+    }
+
+    // =======================================================
+    // --- ATTENDANCE METHODS (Unchanged) ---
+    // =======================================================
 
     public Map<LocalDate, String> getAttendanceRecords() {
         return attendanceRecords;
-    }
-
-    // =======================================================
-    // --- CORE METHODS (Unchanged) ---
-    // =======================================================
-
-    public void addGrade(String subject, int score) {
-        this.grades.computeIfAbsent(subject, k -> new ArrayList<>()).add(score);
     }
 
     public void recordAttendance(LocalDate date, String status) {
         this.attendanceRecords.put(date, status);
     }
 
-    // --- Utility Method (Unchanged) ---
+    // --- Utility Method (Updated for new scores) ---
 
     @Override
     public String toString() {
-        return String.format("  Student ID: %s, Name: %s, Grade: %s, Grades Count: %d, Attendance Count: %d",
-                getStudentId(), getName(), getGradeLevel(), getGradeCount(), attendanceRecords.size());
-    }
-
-    private int getGradeCount() {
-        return grades.values().stream().mapToInt(List::size).sum();
+        return String.format("Student ID: %s, Name: %s, Grade: %s, Total Score: %d",
+                getStudentId(), getName(), getGradeLevel(), getTotalGrade());
     }
 }

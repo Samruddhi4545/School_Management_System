@@ -1,5 +1,7 @@
 package com.example;
 
+import java.util.Optional;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class StudentManagementController {
 
@@ -19,6 +22,18 @@ public class StudentManagementController {
     @FXML private TableColumn<Student, String> idColumn;
     @FXML private TableColumn<Student, String> nameColumn;
     @FXML private TableColumn<Student, String> gradeLevelColumn;
+    
+    // New Fixed Grade Columns
+    @FXML private TableColumn<Student, Integer> mathColumn;
+    @FXML private TableColumn<Student, Integer> scienceColumn;
+    @FXML private TableColumn<Student, Integer> socialColumn;
+    @FXML private TableColumn<Student, Integer> englishColumn;
+    @FXML private TableColumn<Student, Integer> kannadaColumn;
+    
+    // New Calculated Grade Columns
+    @FXML private TableColumn<Student, Integer> totalGradeColumn;
+    @FXML private TableColumn<Student, Double> averageGradeColumn;
+
     @FXML private TextField studentIdField;
     @FXML private TextField nameField;
     @FXML private TextField gradeLevelField;
@@ -30,8 +45,7 @@ public class StudentManagementController {
     @FXML private Label statusLabel;
 
     private SchoolSystem schoolSystem;
-    @SuppressWarnings("FieldMayBeFinal")
-    private ObservableList<Student> studentList = FXCollections.observableArrayList();
+    private final ObservableList<Student> studentList = FXCollections.observableArrayList();
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -41,136 +55,162 @@ public class StudentManagementController {
     public void initialize() {
         schoolSystem = new SchoolSystem();
 
-        // Set up the columns in the table
-        idColumn.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        gradeLevelColumn.setCellValueFactory(cellData -> cellData.getValue().gradeLevelProperty());
+        // 1. Configure Table Columns (Cell Value Factories)
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("studentId"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        gradeLevelColumn.setCellValueFactory(new PropertyValueFactory<>("gradeLevel"));
+        
+        // Configure new fixed grade columns to link to Student properties
+        mathColumn.setCellValueFactory(new PropertyValueFactory<>("mathScore"));
+        scienceColumn.setCellValueFactory(new PropertyValueFactory<>("scienceScore"));
+        socialColumn.setCellValueFactory(new PropertyValueFactory<>("socialScore"));
+        englishColumn.setCellValueFactory(new PropertyValueFactory<>("englishScore"));
+        kannadaColumn.setCellValueFactory(new PropertyValueFactory<>("kannadaScore"));
+        
+        // Configure new calculated columns to link to Student properties
+        totalGradeColumn.setCellValueFactory(new PropertyValueFactory<>("totalGrade"));
+        averageGradeColumn.setCellValueFactory(new PropertyValueFactory<>("averageGrade"));
 
-        // Load student data
+        // 2. Load Data
         loadStudentData();
-
-        // Add listener for table selection changes
-        studentTableView.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> showStudentDetails(newValue));
-    }
-
-    private void loadStudentData() {
-        studentList.setAll(schoolSystem.getAllStudents());
         studentTableView.setItems(studentList);
-        statusLabel.setText("Loaded " + studentList.size() + " students.");
+
+        // 3. Setup Listener for Table Selection
+        studentTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                showStudentDetails(newSelection);
+            } else {
+                clearStudentDetails();
+            }
+        });
     }
 
+    /**
+     * Loads student data from the SchoolSystem into the ObservableList.
+     */
+    private void loadStudentData() {
+        studentList.clear();
+        studentList.addAll(schoolSystem.getAllStudents());
+    }
+
+    /**
+     * Populates the detail fields with the selected student's information.
+     */
     private void showStudentDetails(Student student) {
-        if (student != null) {
-            studentIdField.setText(student.getStudentId());
-            nameField.setText(student.getName());
-            gradeLevelField.setText(student.getGradeLevel());
-            studentIdField.setEditable(false); // ID should not be changed
-        } else {
-            // Clear fields if no student is selected
-            studentIdField.clear();
-            nameField.clear();
-            gradeLevelField.clear();
-            studentIdField.setEditable(true);
-        }
+        studentIdField.setText(student.getStudentId());
+        nameField.setText(student.getName());
+        gradeLevelField.setText(student.getGradeLevel());
+
+        // Disable ID field for update to prevent changing the key
+        studentIdField.setDisable(true); 
     }
 
+    /**
+     * Clears the detail fields.
+     */
+    private void clearStudentDetails() {
+        studentIdField.setText(null);
+        nameField.setText(null);
+        gradeLevelField.setText(null);
+        studentIdField.setDisable(false); // Enable ID field for new entry
+        studentTableView.getSelectionModel().clearSelection();
+    }
+
+    /**
+     * Handles adding a new student to the system.
+     */
     @FXML
-    @SuppressWarnings("unused")
-    private void handleAddStudent(@SuppressWarnings("unused") ActionEvent event) {
-        String studentId = studentIdField.getText();
+    private void handleAddStudent(ActionEvent event) {
+        String id = studentIdField.getText();
         String name = nameField.getText();
         String gradeLevel = gradeLevelField.getText();
 
-        if (studentId.isEmpty() || name.isEmpty() || gradeLevel.isEmpty()) {
-            Alert alert = new Alert(AlertType.ERROR, "All fields must be filled.", ButtonType.OK);
-            alert.showAndWait();
-            statusLabel.setText("Error: All fields are required.");
+        if (id == null || id.trim().isEmpty() || name == null || name.trim().isEmpty() || gradeLevel == null || gradeLevel.trim().isEmpty()) {
+            new Alert(AlertType.ERROR, "Please fill in all student details.").showAndWait();
+            statusLabel.setText("Error: Missing student information.");
             return;
         }
 
-        // Optional: Check if student ID already exists
-        if (schoolSystem.findStudentById(studentId) != null) {
-            Alert alert = new Alert(AlertType.ERROR, "A student with this ID already exists.", ButtonType.OK);
-            alert.showAndWait();
-            statusLabel.setText("Error: Student ID already exists.");
+        Student newStudent = new Student(id.trim(), name.trim(), gradeLevel.trim());
+        
+        // Check if student already exists before adding
+        if (schoolSystem.findStudentById(id.trim()) != null) {
+            new Alert(AlertType.ERROR, "Student with ID " + id + " already exists.").showAndWait();
+            statusLabel.setText("Error: Student ID already in use.");
             return;
         }
 
-        Student newStudent = new Student(studentId, name, gradeLevel);
         schoolSystem.addStudent(newStudent);
-
-        // --- IMPROVEMENT: Refresh table and select the new student ---
-        // 1. Refresh the underlying list with new data
-        studentList.setAll(schoolSystem.getAllStudents());
-
-        // 2. Find the newly added student in the list
-        // We can do this by streaming and filtering, or a simple loop.
-        Student studentToSelect = studentList.stream()
-            .filter(s -> s.getStudentId().equals(studentId))
-            .findFirst()
-            .orElse(null); // Should always be found
-
-        // 3. Select and scroll to the new student in the TableView
-        studentTableView.getSelectionModel().select(studentToSelect);
-        studentTableView.scrollTo(studentToSelect);
-
-        statusLabel.setText("Successfully added student: " + name);
+        studentList.add(newStudent); // Add to the ObservableList to update the TableView
+        clearStudentDetails();
+        statusLabel.setText("Successfully added new student: " + newStudent.getName());
     }
 
+    /**
+     * Handles updating the details of the currently selected student.
+     */
     @FXML
-    @SuppressWarnings("unused")
-    private void handleUpdateStudent(@SuppressWarnings("unused") ActionEvent event) {
+    private void handleUpdateStudent(ActionEvent event) {
         Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+
         if (selectedStudent == null) {
-            Alert alert = new Alert(AlertType.WARNING, "No student selected. Please select a student from the table to update.", ButtonType.OK);
-            alert.showAndWait();
-            statusLabel.setText("Warning: No student selected for update.");
+            new Alert(AlertType.ERROR, "Please select a student to update.").showAndWait();
+            statusLabel.setText("Error: No student selected for update.");
             return;
         }
 
         String name = nameField.getText();
         String gradeLevel = gradeLevelField.getText();
-
-        if (name.isEmpty() || gradeLevel.isEmpty()) {
-            Alert alert = new Alert(AlertType.ERROR, "Name and Grade Level fields cannot be empty.", ButtonType.OK);
-            alert.showAndWait();
-            statusLabel.setText("Error: Required fields are empty.");
+        
+        if (name == null || name.trim().isEmpty() || gradeLevel == null || gradeLevel.trim().isEmpty()) {
+            new Alert(AlertType.ERROR, "Name and Grade Level must be filled.").showAndWait();
+            statusLabel.setText("Error: Missing update information.");
             return;
         }
+        
+        // Update the model object properties
+        selectedStudent.setName(name.trim());
+        selectedStudent.setGradeLevel(gradeLevel.trim());
+        
+        // Persist changes to the database
+        schoolSystem.updateStudent(selectedStudent);
+        
+        // Refresh the TableView to show the updated values
+        studentTableView.getColumns().get(0).setVisible(false);
+        studentTableView.getColumns().get(0).setVisible(true);
 
-        // Create a temporary student object just for the DB update method
-        Student studentWithUpdates = new Student(selectedStudent.getStudentId(), name, gradeLevel);
-        schoolSystem.updateStudent(studentWithUpdates);
-
-        // --- IMPROVEMENT: Update the model in-place instead of reloading ---
-        // The TableView is bound to the properties of the Student objects.
-        // By updating the properties of the selected student, the UI will refresh automatically.
-        selectedStudent.setName(name);
-        selectedStudent.setGradeLevel(gradeLevel);
-        statusLabel.setText("Successfully updated student: " + name);
+        clearStudentDetails();
+        statusLabel.setText("Successfully updated student: " + selectedStudent.getName());
     }
 
+    /**
+     * Handles deleting the currently selected student.
+     */
     @FXML
-    @SuppressWarnings("unused")
     private void handleDeleteStudent(ActionEvent event) {
         Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+
         if (selectedStudent == null) {
-            Alert alert = new Alert(AlertType.WARNING, "No student selected. Please select a student to delete.", ButtonType.OK);
-            alert.showAndWait();
-            statusLabel.setText("Warning: No student selected for deletion.");
+            new Alert(AlertType.ERROR, "Please select a student to delete.").showAndWait();
+            statusLabel.setText("Error: No student selected for deletion.");
             return;
         }
 
+        // Show confirmation dialog
         Alert confirmation = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedStudent.getName() + "?", ButtonType.YES, ButtonType.NO);
         confirmation.setHeaderText("Confirm Deletion");
-        confirmation.showAndWait();
+        
+        // The JavaFX Alert returns an Optional<ButtonType>
+        Optional<ButtonType> result = confirmation.showAndWait();
 
-        if (confirmation.getResult() == ButtonType.YES) {
+        if (result.isPresent() && result.get() == ButtonType.YES) {
             String deletedStudentName = selectedStudent.getName();
             schoolSystem.deleteStudent(selectedStudent.getStudentId());
-            // --- IMPROVEMENT: Remove the item directly from the list ---
+            
+            // Remove the item directly from the list (which updates the TableView)
             studentList.remove(selectedStudent);
+            
+            clearStudentDetails();
             statusLabel.setText("Successfully deleted student: " + deletedStudentName);
         }
     }
@@ -185,27 +225,8 @@ public class StudentManagementController {
         NavigationManager.switchScene(event, "/com/example/Dashboard.fxml", "School Management System");
     }
 
-    public Button getUpdateButton() {
-        return updateButton;
-    }
-
-    public void setUpdateButton(Button updateButton) {
-        this.updateButton = updateButton;
-    }
-
-    public Button getDeleteButton() {
-        return deleteButton;
-    }
-
-    public void setDeleteButton(Button deleteButton) {
-        this.deleteButton = deleteButton;
-    }
-
-    public Button getBackButton() {
-        return backButton;
-    }
-
-    public void setBackButton(Button backButton) {
-        this.backButton = backButton;
-    }
+    // Public getters for testing (Keep for consistency)
+    public Button getUpdateButton() { return updateButton; }
+    public Button getDeleteButton() { return deleteButton; }
+    public Button getBackButton() { return backButton; }
 }

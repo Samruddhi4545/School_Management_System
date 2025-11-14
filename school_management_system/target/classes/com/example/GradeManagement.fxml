@@ -9,36 +9,69 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.GradeManagementController">
 <children>
     <VBox alignment="TOP_CENTER" layoutX="50.0" layoutY="50.0" prefHeight="500.0" prefWidth="700.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
         <children>
-            <Label text="Record Student Grades">
+            <Label text="Record Fixed Subject Grades">
             <font>
                 <Font name="System Bold" size="24.0" />
             </font>
             </Label>
+            
+            <!-- Student Selection -->
             <HBox alignment="CENTER" spacing="10.0">
             <children>
-                <Label text="Student:" />
-                <ComboBox fx:id="studentComboBox" prefWidth="250.0" promptText="Select Student" />
+                <Label text="Select Student:" />
+                <ComboBox fx:id="studentComboBox" prefWidth="300.0" promptText="Select Student" />
             </children>
             </HBox>
-            <HBox alignment="CENTER" spacing="10.0">
-            <children>
-                <Label text="Subject:" />
-                <TextField fx:id="subjectField" promptText="e.g., Math" />
-                <Label text="Grade:" />
-                <TextField fx:id="gradeField" prefWidth="100.0" promptText="e.g., 85" />
-            </children>
-            </HBox>
-            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveGrade" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Save Grade">
+
+            <!-- Grade Inputs (GridPane for clean alignment) -->
+            <GridPane hgap="20.0" vgap="10.0" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                </rowConstraints>
+                
+                <Label text="Math Score (0-100):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <TextField fx:id="mathField" promptText="e.g., 85" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="Science Score (0-100):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextField fx:id="scienceField" promptText="e.g., 92" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Social Score (0-100):" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <TextField fx:id="socialField" promptText="e.g., 65" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <Label text="English Score (0-100):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="englishField" promptText="e.g., 78" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Kannada Score (0-100):" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <TextField fx:id="kannadaField" promptText="e.g., 95" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+                
+                <Label text="Enter scores and press Save to update all 5 subjects." style="-fx-font-style: italic;" GridPane.rowIndex="2" GridPane.columnIndex="2" GridPane.columnSpan="2" />
+                
+            </GridPane>
+
+            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveGrades" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Save All 5 Grades">
             <font>
                 <Font size="14.0" />
             </font>
             </Button>
+            
             <Label fx:id="statusLabel" text="Status: Ready" textFill="#555555" />
+            
             <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" text="Back to Dashboard" />
         </children>
         <padding>
