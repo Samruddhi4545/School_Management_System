@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map; // ADDED: Required for reporting methods
 import java.util.stream.Collectors;
 
 /**
@@ -149,6 +150,7 @@ public class SchoolSystem {
     /**
      * Records all 5 fixed subject grades for a student in a single operation (INSERT/UPDATE).
      * Since the grades table uses student_id as the primary key, we use REPLACE.
+     * FIX: Replaced 'social' and 'kannada' with the correct parameters 'history' and 'art'.
      */
     public void recordGrade(String studentId, int math, int science, int english, int history, int art) {
         String sql = """
@@ -162,9 +164,9 @@ public class SchoolSystem {
             pstmt.setString(1, studentId);
             pstmt.setInt(2, math);
             pstmt.setInt(3, science);
-            pstmt.setInt(4, social);
+            pstmt.setInt(4, history); // Maps to social_score column (FIXED)
             pstmt.setInt(5, english);
-            pstmt.setInt(6, kannada);
+            pstmt.setInt(6, art); // Maps to kannada_score column (FIXED)
             pstmt.executeUpdate();
             
             System.out.println("Fixed grades recorded/updated for student ID: " + studentId);
@@ -228,7 +230,37 @@ public class SchoolSystem {
         }
     }
     
-    // --- Reporting and Calculations (Removed/simplified as logic is now in Student.java) ---
-    // The previous methods like calculateOverallAverage are now handled directly by Student.getAverageGrade()
-    // We can keep a simplified version if needed, but for now, rely on the Student model's properties.
+    // --- Reporting and Calculations (RE-ADDED) ---
+
+    /**
+     * Implements the method required by AttendanceReportController.java.
+     * Fetches all students and pivots their attendance data for the given date range.
+     */
+    public List<AttendanceReportEntry> getPivotedAttendanceReport(LocalDate startDate, LocalDate endDate) {
+        List<Student> students = getAllStudents();
+        
+        return students.stream().map(s -> {
+            // Filter the attendance map in Student based on the date range
+            Map<LocalDate, String> filteredAttendance = s.getAttendanceRecords().entrySet().stream()
+                .filter(e -> !e.getKey().isBefore(startDate) && !e.getKey().isAfter(endDate))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                
+            // Uses the constructor signature: (String studentId, String studentName, Map<LocalDate, String> attendanceData).
+            return new AttendanceReportEntry(s.getStudentId(), s.getName(), filteredAttendance);
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * Implements the method required by GradeSummaryReportController.java.
+     * Creates a summary entry for every student, calculating the average grade.
+     */
+    public List<GradeSummaryEntry> getGradeSummaryForAll() {
+        List<Student> students = getAllStudents();
+        
+        return students.stream().map(s -> {
+            // Uses the constructor signature: (String studentId, String studentName, double overallAverage).
+            // Assumes Student.getAverageGrade() exists.
+            return new GradeSummaryEntry(s.getStudentId(), s.getName(), s.getAverageGrade());
+        }).collect(Collectors.toList());
+    }
 }

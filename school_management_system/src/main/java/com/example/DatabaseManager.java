@@ -7,7 +7,6 @@ import java.sql.Statement;
 
 /**
  * Manages the connection to the SQLite database and ensures the necessary tables exist.
- * UPDATED to use fixed columns for grades.
  */
 public class DatabaseManager {
 
@@ -19,13 +18,12 @@ public class DatabaseManager {
      * @return A valid Connection object.
      */
     public static Connection getConnection() throws SQLException {
+        // DriverManager will create the 'school.db' file if it doesn't exist.
         return DriverManager.getConnection(URL);
     }
 
     /**
      * Initializes the database by creating all necessary tables if they don't already exist.
-     * Note: If the schema changes significantly, you may need to manually delete school.db
-     * or implement a proper migration strategy for existing installations.
      */
     public static void initializeDatabase() {
         // SQL statements to create tables
@@ -36,19 +34,19 @@ public class DatabaseManager {
                             grade_level TEXT NOT NULL
                             );""";
 
-        // Grades table UPDATED to fixed 5 subjects (scores stored as INTEGER out of 100)
+        // Grades table linked to students using a Foreign Key (student_id)
+        // This is the **FLEXIBLE** schema: one row per grade (student, subject, score)
         String sqlGrades = """
                         CREATE TABLE IF NOT EXISTS grades (
-                            student_id TEXT PRIMARY KEY,
-                            math_score INTEGER NOT NULL DEFAULT 0,
-                            science_score INTEGER NOT NULL DEFAULT 0,
-                            social_score INTEGER NOT NULL DEFAULT 0,
-                            english_score INTEGER NOT NULL DEFAULT 0,
-                            kannada_score INTEGER NOT NULL DEFAULT 0,
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            student_id TEXT NOT NULL,
+                            subject TEXT NOT NULL,
+                            score INTEGER NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES students (id)
-                        );"""; // PRIMARY KEY is now on student_id, ensuring one record per student
+                        );""";
 
-        // Attendance table remains the same
+        // Attendance table linked to students using a Foreign Key (student_id)
+        // Note: INSERT OR REPLACE is used in SchoolSystem for simpler date-based updates
         String sqlAttendance = """
                             CREATE TABLE IF NOT EXISTS attendance (
                                 student_id TEXT NOT NULL,
@@ -56,8 +54,10 @@ public class DatabaseManager {
                                 status TEXT NOT NULL,
                                 PRIMARY KEY (student_id, date),
                                 FOREIGN KEY (student_id) REFERENCES students (id)
-                                );"""; 
-        
+                               );""" // Stored as YYYY-MM-DD
+        // PRESENT, ABSENT, LATE
+        ;
+
         try (Connection conn = getConnection();
             Statement stmt = conn.createStatement()) {
 
@@ -65,9 +65,10 @@ public class DatabaseManager {
             stmt.execute(sqlStudents);
             stmt.execute(sqlGrades);
             stmt.execute(sqlAttendance);
-            
-            System.out.println("Database 'school.db' initialized and tables verified (Fixed Grades Schema).");
-            
+
+            // Log the correct schema type to confirm
+            System.out.println("Database 'school.db' initialized and tables verified (Flexible Grades Schema).");
+
         } catch (SQLException e) {
             System.err.println(" Error initializing database: " + e.getMessage());
         }
