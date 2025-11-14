@@ -30,7 +30,7 @@
                 <Label text="Subject:" />
                 <TextField fx:id="subjectField" promptText="e.g., Math" />
                 <Label text="Grade:" />
-                <TextField fx:id="gradeField" prefWidth="100.0" promptText="e.g., A+" />
+                <TextField fx:id="gradeField" prefWidth="100.0" promptText="e.g., 85" />
             </children>
             </HBox>
             <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveGrade" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Save Grade">
