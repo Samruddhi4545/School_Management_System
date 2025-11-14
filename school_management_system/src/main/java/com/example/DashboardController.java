@@ -33,4 +33,13 @@ public class DashboardController {
         statusLabel.setText("Opening Attendance Tracking...");
         NavigationManager.switchScene(event, "/com/example/AttendanceTracking.fxml", "Attendance Tracking");
     }
+    
+    // NEW METHOD for Attendance Report
+    @FXML
+    @SuppressWarnings("unused")
+    private void handleViewAttendanceReport(ActionEvent event) {
+        statusLabel.setText("Opening Attendance Report...");
+        // This will load the new AttendanceReport.fxml view
+        NavigationManager.switchScene(event, "/com/example/AttendanceReport.fxml", "Class Attendance Report");
+    }
 }
