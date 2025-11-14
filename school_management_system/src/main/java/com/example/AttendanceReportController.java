@@ -1,7 +1,13 @@
 package com.example;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,13 +20,11 @@ public class AttendanceReportController {
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
     
+    // TableView is now parameterized with the new model
     @FXML private TableView<AttendanceReportEntry> reportTableView;
     
-    // Columns bound to AttendanceReportEntry properties
-    @FXML private TableColumn<AttendanceReportEntry, String> studentIdColumn;
+    // Only ONE fixed column for student name
     @FXML private TableColumn<AttendanceReportEntry, String> studentNameColumn;
-    @FXML private TableColumn<AttendanceReportEntry, LocalDate> dateColumn;
-    @FXML private TableColumn<AttendanceReportEntry, String> statusColumn;
     
     @FXML private Label statusLabel;
     
@@ -28,20 +32,13 @@ public class AttendanceReportController {
 
     @FXML
     public void initialize() {
-        configureTableColumns();
+        // Set up the fixed column binding
+        studentNameColumn.setCellValueFactory(cellData -> cellData.getValue().studentNameProperty());
+
         // Optional: Set a default date range
         endDatePicker.setValue(LocalDate.now());
         startDatePicker.setValue(LocalDate.now().minusDays(30)); 
     }
-    
-    private void configureTableColumns() {
-        // Bind columns to the property methods of the AttendanceReportEntry class
-        studentIdColumn.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
-        studentNameColumn.setCellValueFactory(cellData -> cellData.getValue().studentNameProperty());
-        dateColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
-        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
-    }
-
 
     @FXML
     private void handleGenerateReport() {
@@ -59,15 +56,46 @@ public class AttendanceReportController {
             new Alert(AlertType.ERROR, "The start date must be before or equal to the end date.").showAndWait();
             return;
         }
-
-        // Fetch records for ALL students
-        List<AttendanceReportEntry> records = schoolSystem.getAttendanceReportForAll(startDate, endDate);
         
-        // Populate the TableView
+        // 1. Fetch pivoted data using the new method
+        List<AttendanceReportEntry> records = schoolSystem.getPivotedAttendanceReport(startDate, endDate);
+        
+        // 2. Clear previous dynamic columns before adding new ones
+        // Remove all columns except the first one (Student Name)
+        if (reportTableView.getColumns().size() > 1) {
+             reportTableView.getColumns().remove(1, reportTableView.getColumns().size());
+        } else if (reportTableView.getColumns().isEmpty()) {
+            // Re-add studentNameColumn if it was somehow cleared (safe check)
+            reportTableView.getColumns().add(studentNameColumn);
+        }
+
+        // 3. Generate the list of dates (columns) in the range
+        long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        List<LocalDate> dateColumns = Stream.iterate(startDate, date -> date.plusDays(1))
+                                            .limit(days)
+                                            .collect(Collectors.toList());
+        
+        // 4. Create dynamic columns for each date
+        for (LocalDate date : dateColumns) {
+            TableColumn<AttendanceReportEntry, String> dateColumn = new TableColumn<>(date.toString());
+            dateColumn.setPrefWidth(80);
+            
+            // Custom CellValueFactory to look up attendance status by date in the entry's map
+            dateColumn.setCellValueFactory(cellData -> {
+                // Look up status in the map, use "-" if no record is found for that date
+                String status = cellData.getValue().getAttendanceData().getOrDefault(date, "-");
+                // The SimpleStringProperty is necessary for JavaFX binding
+                return new SimpleStringProperty(status);
+            });
+            
+            reportTableView.getColumns().add(dateColumn);
+        }
+
+        // 5. Populate the TableView
         ObservableList<AttendanceReportEntry> reportEntries = FXCollections.observableArrayList(records);
         reportTableView.setItems(reportEntries);
         
-        statusLabel.setText("Class attendance report generated: " + records.size() + " total attendance records found between " + startDate + " and " + endDate + ".");
+        statusLabel.setText("Class attendance report generated: " + records.size() + " total students listed across " + days + " days.");
     }
     
     @FXML

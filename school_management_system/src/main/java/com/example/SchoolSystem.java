@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections; // NEW IMPORT for emptyMap
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -278,17 +279,20 @@ public class SchoolSystem {
         return monthlyRecords;
     }
     
-    // --- UPDATED: NEW METHOD for ALL Student Attendance Report (4) ---
-    public List<AttendanceReportEntry> getAttendanceReportForAll(LocalDate startDate, LocalDate endDate) {
-        List<AttendanceReportEntry> reportList = new ArrayList<>();
+    // --- NEW METHOD for ALL Student Attendance Report (Pivoted View) (4) ---
+    public List<AttendanceReportEntry> getPivotedAttendanceReport(LocalDate startDate, LocalDate endDate) {
+        // 1. Fetch all students to get their names and IDs
+        List<Student> allStudents = getAllStudents(); 
         
-        // SQL JOIN to get student name along with attendance status
+        // 2. Fetch all relevant attendance records from the database
+        // Map<String (StudentID), Map<LocalDate, String (Status)>>
+        Map<String, Map<LocalDate, String>> studentAttendanceMap = new HashMap<>();
+
+        // SQL query to fetch all records in the range
         String sql = """
-                     SELECT s.id, s.name, a.date, a.status 
-                     FROM students s
-                     JOIN attendance a ON s.id = a.student_id
-                     WHERE a.date BETWEEN ? AND ? 
-                     ORDER BY s.name ASC, a.date ASC
+                     SELECT student_id, date, status 
+                     FROM attendance
+                     WHERE date BETWEEN ? AND ? 
                      """;
 
         try (Connection conn = DatabaseManager.getConnection();
@@ -300,17 +304,38 @@ public class SchoolSystem {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                reportList.add(new AttendanceReportEntry(
-                    rs.getString("id"),
-                    rs.getString("name"),
-                    LocalDate.parse(rs.getString("date")),
-                    rs.getString("status")
-                ));
+                String studentId = rs.getString("student_id");
+                // The date must be correctly parsed
+                LocalDate date = LocalDate.parse(rs.getString("date"));
+                String status = rs.getString("status");
+                
+                // Populate the map structure: studentId -> (date -> status)
+                // This groups the statuses by student
+                studentAttendanceMap
+                    .computeIfAbsent(studentId, k -> new HashMap<>())
+                    .put(date, status);
             }
 
         } catch (SQLException e) {
-            System.err.println("Error fetching all student attendance report: " + e.getMessage());
+            System.err.println("Error fetching pivoted student attendance report: " + e.getMessage());
         }
+        
+        // 3. Transform the data into the final List of AttendanceReportEntry objects
+        List<AttendanceReportEntry> reportList = new ArrayList<>();
+        
+        for (Student student : allStudents) {
+            String studentId = student.getStudentId();
+            // Get the attendance data for this specific student, default to empty map if none exists
+            Map<LocalDate, String> data = studentAttendanceMap.getOrDefault(studentId, Collections.emptyMap());
+            
+            // Create the entry using the new constructor
+            reportList.add(new AttendanceReportEntry(
+                studentId,
+                student.getName(),
+                data
+            ));
+        }
+        
         return reportList;
     }
 
@@ -366,7 +391,7 @@ public class SchoolSystem {
         return (double) sum / subjectGrades.size();
     }
 
-    // --- UPDATED: NEW METHOD for Grade Summary Report (5) ---
+    // --- NEW METHOD for Grade Summary Report (5) ---
     public List<GradeSummaryEntry> getGradeSummaryForAll() {
         List<GradeSummaryEntry> summaryList = new ArrayList<>();
         

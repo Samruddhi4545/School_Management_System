@@ -34,7 +34,7 @@ public class DashboardController {
         NavigationManager.switchScene(event, "/com/example/AttendanceTracking.fxml", "Attendance Tracking");
     }
 
-    // ADDED from the attendance report step
+    // Handler for button 4 (Attendance Report)
     @FXML
     @SuppressWarnings("unused")
     private void handleViewAttendanceReport(ActionEvent event) {
@@ -42,7 +42,7 @@ public class DashboardController {
         NavigationManager.switchScene(event, "/com/example/AttendanceReport.fxml", "Class Attendance Report");
     }
     
-    // NEW METHOD for Grade Summary Report
+    // Handler for button 5 (Grade Summary Report)
     @FXML
     @SuppressWarnings("unused")
     private void handleViewGradeSummaryReport(ActionEvent event) {
